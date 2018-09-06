@@ -1,1 +1,3 @@
-# nextjs-ts-antd-starter
+# A Next.js starter with TypeScript and AntDesign
+
+Still writing.

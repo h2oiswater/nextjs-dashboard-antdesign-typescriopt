@@ -1,0 +1,28 @@
+{
+  "name": "next-back",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/pages/index.js",
+  "scripts": {
+    "dev": "next src",
+    "build": "next build",
+    "start": "next start"
+  },
+  "author": "nova",
+  "license": "ISC",
+  "dependencies": {
+    "axios": "^0.18.0",
+    "next": "^6.1.1",
+    "node-sass": "^4.9.3",
+    "react": "^16.4.2",
+    "react-dom": "^16.4.2"
+  },
+  "devDependencies": {
+    "@types/react": "^16.4.13",
+    "@zeit/next-sass": "^0.2.0",
+    "@zeit/next-typescript": "^1.1.0",
+    "babel-plugin-module-resolver": "^3.1.1",
+    "fork-ts-checker-webpack-plugin": "^0.4.9",
+    "typescript": "^3.0.3"
+  }
+}
