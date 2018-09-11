@@ -6,6 +6,7 @@ const path = require('path')
 
 module.exports = withTypescript(
   withSass({
+    // useFileSystemPublicRoutes: false, // 是否开启路径对应url
     cssModules: true,
     webpack(config, options) {
       // Do not run type checking twice:

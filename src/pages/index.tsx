@@ -1,4 +1,5 @@
-import Head from 'next/head'
+import Link from 'next/link'
+
 import React from 'react'
 import * as styles from '@styles/index/index.scss'
 
@@ -18,12 +19,9 @@ export default class extends React.Component {
   render() {
     return (
       <div className={styles.container}>
-        <Head>
-          <title>My page title</title>
-          <meta name="viewport" content="initial-scale=1.0, width=device-width" />
-        </Head>
         <img src='/static/movies.jpg'/>
         <p>{this.props.stars}</p>
+        <Link href='/about'>about us</Link>
       </div>
     )
   }
