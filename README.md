@@ -8,6 +8,8 @@ Still writing.
 3. npm run dev
 
 ## change logs
+3. 9-12
+  - add antd
 2. 9-11 
   - add koa
   - add default _app,_document, _error
