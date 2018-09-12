@@ -1,19 +1,20 @@
 import React from 'react'
-import Footer from '../../components/footer'
-import Header from '../../components/header'
-import Menu from '../../components/menu'
+import { Layout } from 'antd';
+const { Header, Footer, Sider, Content } = Layout;
 
 export default class extends React.Component {
 
   render() {
     return (
       <div>
-        <Header></Header>
-        <Menu></Menu>
-        {
-          this.props.children
-        }
-        <Footer/>
+        <Layout>
+          <Sider>Sider</Sider>
+          <Layout>
+            <Header>Header</Header>
+            <Content>Content</Content>
+            <Footer>Footer</Footer>
+          </Layout>
+        </Layout>
       </div>
     )
   }

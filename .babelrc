@@ -9,6 +9,14 @@
       "alias": {
         "@styles": "./src/styles/"
       }
-    }]
+    }],
+    "transform-decorators-legacy",
+    [
+      "import",
+      {
+        "libraryName": "antd",
+        "style": "css"
+      }
+    ]
   ]
 }

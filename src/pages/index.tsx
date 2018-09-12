@@ -1,7 +1,7 @@
 import Link from 'next/link'
 
 import React from 'react'
-import * as styles from '@styles/index/index.scss'
+import '@styles/index/index.scss'
 
 import * as IndexAPI from '../api/indexApi'
 
@@ -18,7 +18,7 @@ export default class extends React.Component {
 
   render() {
     return (
-      <div className={styles.container}>
+      <div className="container">
         <img src='/static/movies.jpg'/>
         <p>{this.props.stars}</p>
         <Link href='/about'>about us</Link>
