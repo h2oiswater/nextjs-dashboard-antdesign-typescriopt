@@ -7,7 +7,9 @@
     ["module-resolver", {
       "root": ["./src"],
       "alias": {
-        "@styles": "./src/styles/"
+        "@styles": "./src/styles/",
+        "dva-utils": "./src/utils/",
+        "dva": "dva-no-router"
       }
     }],
     "transform-decorators-legacy",
@@ -15,7 +17,7 @@
       "import",
       {
         "libraryName": "antd",
-        "style": "css"
+        "style": true
       }
     ]
   ]

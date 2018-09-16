@@ -8,6 +8,11 @@ Still writing.
 3. npm run dev
 
 ## change logs
+4. 9-16
+  - add redux and it's friends
+  - add dva
+  - use dva
+  - writing templates
 3. 9-12
   - add antd
 2. 9-11 

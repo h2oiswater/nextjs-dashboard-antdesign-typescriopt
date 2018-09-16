@@ -1,22 +1,14 @@
-// next.config.js
-const withSass = require('@zeit/next-sass')
-const withCss = require('@zeit/next-css')
-const withTypescript = require('@zeit/next-typescript')
-const ForkTsCheckerWebpackPlugin = require('fork-ts-checker-webpack-plugin');
-const path = require('path')
+/* eslint-disable */
+const withLess = require('@zeit/next-less')
+const withTypescript = require("@zeit/next-typescript")
 
-// fix: prevents error when .css files are required by node
+// fix: prevents error when .less files are required by node
 if (typeof require !== 'undefined') {
-  require.extensions['.css'] = (file) => {}
+  require.extensions['.less'] = (file) => {}
 }
 
-module.exports = withCss(withTypescript(
-  withSass({
-    // useFileSystemPublicRoutes: false, // 是否开启路径对应url
-    webpack(config, options) {
-      // Do not run type checking twice:
-      if (options.isServer) config.plugins.push(new ForkTsCheckerWebpackPlugin({tsconfig: path.resolve(__dirname, './tsconfig.json')}))
-      return config
-    }
-  })
-))
+module.exports = withTypescript(withLess({
+  lessLoaderOptions: {
+    javascriptEnabled: true,
+  },
+}))
