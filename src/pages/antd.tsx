@@ -9,7 +9,9 @@ export default class ApiPage extends React.Component {
     return (
       <div>
         <Layout>
-          <Sider style={{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }}>
+          <Sider style={{ overflow: 'auto', height: '100vh', position: 'fixed', left: 0 }}
+            theme='light'
+          >
             <Menu />
           </Sider>
           <Layout style={{ marginLeft: 200 }}>

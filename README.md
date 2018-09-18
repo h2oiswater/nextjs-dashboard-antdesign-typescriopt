@@ -8,6 +8,8 @@ Still writing.
 3. npm run dev
 
 ## change logs
+5. 9-18
+  - add menu model
 4. 9-16
   - add redux and it's friends
   - add dva
