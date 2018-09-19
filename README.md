@@ -1,4 +1,5 @@
 # A Next.js starter with TypeScript and AntDesign
+# It's a simple Dashboard. Less is More.
 
 Still writing.
 
