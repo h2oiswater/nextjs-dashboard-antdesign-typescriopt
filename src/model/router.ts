@@ -9,7 +9,6 @@ const model = {
       return { ...state, path }
     },
     updateKey(state, {key}) {
-      console.log(key)
       let newKey = []
       newKey.push(key)
       return { ...state, key: newKey }

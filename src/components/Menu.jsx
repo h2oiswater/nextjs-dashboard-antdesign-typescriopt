@@ -30,7 +30,7 @@ export default class Sider extends React.Component {
     return (
       <Menu
         onClick={this.handleClick}
-        style={{ width: 256 }}
+        style={{textAlign: "left" }}
         defaultSelectedKeys={key}
         defaultOpenKeys={['sub1', 'sub2', 'sub3']}
         mode="inline"

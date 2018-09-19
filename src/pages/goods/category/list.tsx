@@ -1,5 +1,5 @@
 import React from 'react'
-import Dashboard from '../../antd'
+import Dashboard from '@layouts/Dashboard'
 import { Table } from 'antd'
 
 const columns = [

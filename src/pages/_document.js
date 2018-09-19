@@ -1,5 +1,6 @@
 import Document, { Head, Main, NextScript } from 'next/document'
 import '../asserts/styles.less'
+import '../asserts/iconfont.less'
 
 export default class MyDocument extends Document {
   render() {
