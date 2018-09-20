@@ -1,4 +1,4 @@
-# A Next.js starter with TypeScript and AntDesign
+# A Next.js starter with TypeScript and AntDesign (base on Next.js 7)
 
 # It's a simple Dashboard. Less is More.
 
@@ -11,7 +11,8 @@
 3. npm run dev
 
 ## change logs
-
+7. 9-20
+    - support next.js 7
 6. 9-19
    - add some page
 7. 9-18
