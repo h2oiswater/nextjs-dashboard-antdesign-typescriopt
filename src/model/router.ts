@@ -1,3 +1,5 @@
+import Router from 'next/router'
+
 const model = {
   namespace: 'router',
   state: {
@@ -5,19 +7,36 @@ const model = {
     key: ['1']
   },
   reducers: {
-    updatePath(state, path) {
+    setPath(state, { path }) {
+      Router.replace(path)
       return { ...state, path }
     },
-    updateKey(state, {key}) {
+    updateKey(state, { key }) {
       let newKey = []
       newKey.push(key)
       return { ...state, key: newKey }
     }
   },
   effects: {
-  },
-  subscriptions: {
+    *updatePath({ path }, { select, put }) {
+      // let needToken = false
+      // for (let p in urlsWithoutAuth) {
+      //   if (urlsWithoutAuth[p] !== path) {
+      //     needToken = true
+      //     break
+      //   }
+      // }
+      // let token = yield select(state => state.user.token)
+
+      // if (needToken && token) {
+        yield put({ type: 'setPath', path })
+      // } else {
+      //   yield put({ type: 'setPath', path: '/' })
+      // }
+    }
   }
 }
+
+const urlsWithoutAuth = ['/', '/login', '/register']
 
 export default model

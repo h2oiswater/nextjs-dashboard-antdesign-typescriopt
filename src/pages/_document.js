@@ -1,16 +1,21 @@
+// _document is only rendered on the server side and not on the client side
+// Event handlers like onClick can't be added to this file
+// ./pages/_document.js
 import Document, { Head, Main, NextScript } from 'next/document'
-import '../asserts/styles.less'
-import '../asserts/iconfont.less'
 
 export default class MyDocument extends Document {
+  static async getInitialProps(ctx) {
+    const initialProps = await Document.getInitialProps(ctx)
+    return { ...initialProps }
+  }
+
   render() {
     return (
       <html>
-        <meta charSet='utf-8' />
         <Head>
-          <link rel="stylesheet" href="/_next/static/style.css" />
+          <style>{`body { margin: 0 } /* custom! */`}</style>
         </Head>
-        <body>
+        <body className="custom_class">
           <Main />
           <NextScript />
         </body>

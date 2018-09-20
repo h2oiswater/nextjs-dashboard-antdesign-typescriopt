@@ -1,7 +1,7 @@
 {
   "presets": [
-    "next/babel",
-    "@zeit/next-typescript/babel"
+    ["next/babel"],
+    ["@zeit/next-typescript/babel"]
   ],
   "plugins": [
     ["module-resolver", {
@@ -13,7 +13,7 @@
         "dva": "dva-no-router"
       }
     }],
-    "transform-decorators-legacy",
+    ["@babel/plugin-proposal-decorators", { "legacy": true }],
     [
       "import",
       {
