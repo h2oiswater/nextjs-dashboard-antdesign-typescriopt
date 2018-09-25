@@ -1,10 +1,13 @@
 import axios from 'axios'
 
-export function login(username: string, password: string): Promise<any> {
+export function login(data: {
+  username: string
+  password: string
+}): Promise<any> {
   return axios.post('/api/login', {
     data: {
-      username,
-      password
+      username: data.username,
+      password: data.password
     }
   })
 }

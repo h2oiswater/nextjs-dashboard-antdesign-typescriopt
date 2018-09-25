@@ -13,6 +13,7 @@ export default class MyDocument extends Document {
     return (
       <html>
         <Head>
+          <title>Next Dashboard</title>
           <style>{`body { margin: 0 } /* custom! */`}</style>
         </Head>
         <body className="custom_class">

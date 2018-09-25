@@ -11,20 +11,32 @@ class NormalLoginForm extends React.Component {
 
   handleSubmit = e => {
     e.preventDefault()
+
+    // const { dispatch } = this.props
+    console.log(this.props)
+
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values)
+        // dispatch({
+        //   type: 'user/login',
+        //   payload: {
+        //     username: values.username,
+        //     password: values.password
+        //   }
+        // })
       }
     })
   }
 
   render() {
     const { getFieldDecorator } = this.props.form
+
     return (
       <div className="login-container">
         <Form onSubmit={this.handleSubmit} className="login-form">
           <FormItem>
-            {getFieldDecorator('userName', {
+            {getFieldDecorator('username', {
               rules: [
                 { required: true, message: 'Please input your username!' }
               ]
