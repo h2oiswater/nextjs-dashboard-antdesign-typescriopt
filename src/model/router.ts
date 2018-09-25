@@ -29,7 +29,7 @@ const model = {
       // let token = yield select(state => state.user.token)
 
       // if (needToken && token) {
-        yield put({ type: 'setPath', path })
+      yield put({ type: 'setPath', path })
       // } else {
       //   yield put({ type: 'setPath', path: '/' })
       // }
