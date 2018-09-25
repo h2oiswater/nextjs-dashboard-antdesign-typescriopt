@@ -1,10 +1,14 @@
 import React from 'react'
 import './login.less'
+import WithDva from 'dva-utils/store'
 import { Form, Icon, Input, Button, Checkbox } from 'antd'
-
 const FormItem = Form.Item
 
-class NormalLoginForm extends React.Component {
+@WithDva(({ user }) => {
+  return { user }
+})
+@Form.create()
+export default class NormalLoginForm extends React.Component {
   props: {
     form: any
   }
@@ -27,6 +31,12 @@ class NormalLoginForm extends React.Component {
         // })
       }
     })
+  }
+
+  componentDidMount() {
+    const { form } = this.props
+    console.log('form = ')
+    console.log(form)
   }
 
   render() {
@@ -87,6 +97,6 @@ class NormalLoginForm extends React.Component {
   }
 }
 
-const WrappedNormalLoginForm = Form.create()(NormalLoginForm)
+// const WrappedNormalLoginForm = Form.create()(NormalLoginForm)
 
-export default WrappedNormalLoginForm
+// export default WrappedNormalLoginForm
