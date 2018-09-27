@@ -2,11 +2,12 @@ import React from 'react'
 import WithDva from 'dva-utils/store'
 import * as IndexAPI from '../api/business/indexApi'
 
-@WithDva(({common}) => { return {common}})
+@WithDva(({ common }) => {
+  return { common }
+})
 export default class ApiPage extends React.Component {
-
   props: {
-    stars: string,
+    stars: string
     common: any
   }
 
