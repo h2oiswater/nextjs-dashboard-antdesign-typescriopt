@@ -1,29 +1,187 @@
 import React from 'react'
 import Dashboard from '@layouts/Dashboard'
-import { Table } from 'antd'
+import WithDva from 'dva-utils/store'
+import { Table, Button, Modal, Form, Input, Popconfirm } from 'antd'
+import './list.less'
+import Category from '../../../class/Category'
+const FormItem = Form.Item
 
-const columns = [
-  { title: '序号', dataIndex: 'key', key: 'id' },
-  { title: '名称', dataIndex: 'name', key: 'name' },
-  { title: '排序', dataIndex: 'sort', key: 'address' },
-  { title: '操作', dataIndex: '', key: 'x', render: () => <a href="javascript:;">添加子分类</a> },
-]
+let columns = function getColunms() {
+  return [
+    { title: 'ID', dataIndex: 'objectId', key: 'objectId' },
+    { title: '名称', dataIndex: 'name', key: 'name' },
+    { title: '排序', dataIndex: 'sort', key: 'sort' },
+    {
+      title: '操作',
+      dataIndex: '',
+      key: 'x',
+      render: item => (
+        <p>
+          <a
+            onClick={() => {
+              this.showModal(item)
+            }}
+          >
+            编辑
+          </a>
+          <Popconfirm
+            title="您确认删除该分类了吗？"
+            onConfirm={() => {
+              this.handleDelete(item)
+            }}
+            okText="确定"
+            cancelText="取消"
+          >
+            <a style={{ marginLeft: 10 }}>删除</a>
+          </Popconfirm>
+        </p>
+      )
+    }
+  ]
+}
+interface CollectionCreateFormProps {
+  visible: boolean
+  onCancel: any
+  onCreate: any
+  form: any
+}
+const CollectionCreateForm = Form.create()(
+  class extends React.Component<CollectionCreateFormProps, any> {
+    render() {
+      const { visible, onCancel, onCreate, form } = this.props
+      const { getFieldDecorator } = form
+      return (
+        <Modal
+          visible={visible}
+          title="新建分类"
+          okText="新建"
+          cancelText="取消"
+          onCancel={onCancel}
+          onOk={onCreate}
+        >
+          <Form layout="vertical">
+            <FormItem label="名称">
+              {getFieldDecorator('name', {
+                rules: [
+                  {
+                    required: true,
+                    message: '名称为必填项目'
+                  }
+                ]
+              })(<Input />)}
+            </FormItem>
+            <FormItem label="排序">
+              {getFieldDecorator('sort')(<Input />)}
+            </FormItem>
+          </Form>
+        </Modal>
+      )
+    }
+  }
+)
 
-const data = [
-  { key: 1, name: '披萨', age: 32, sort: 1, address: 'New York No. 1 Lake Park', description: 'My name is John Brown, I am 32 years old, living in New York No. 1 Lake Park.' },
-  { key: 2, name: '牛排', age: 42, sort: 2, address: 'London No. 1 Lake Park', description: 'My name is Jim Green, I am 42 years old, living in London No. 1 Lake Park.' },
-  { key: 3, name: '沙拉', age: 32, sort: 3,  address: 'Sidney No. 1 Lake Park', description: 'My name is Joe Black, I am 32 years old, living in Sidney No. 1 Lake Park.' },
-]
+interface CategoryListPageProps {
+  goods: any
+  dispatch: any
+}
 
-export default class ApiPage extends React.Component {
-  render () {
+@WithDva(({ goods }) => {
+  return { goods }
+})
+export default class CategoryListPage extends React.Component<
+  CategoryListPageProps,
+  any
+> {
+  state = {
+    visible: false
+  }
+
+  constructor(props) {
+    super(props)
+
+    columns = columns.bind(this)
+  }
+
+  componentDidMount() {
+    const { dispatch } = this.props
+
+    dispatch({
+      type: 'goods/getCategoryList'
+    })
+  }
+
+  showModal = (item: Category) => {
+    const { dispatch } = this.props
+
+    if (item) {
+      dispatch({ type: 'goods/updateCurrentCategory', payload: item })
+    }
+    this.setState({ visible: true })
+  }
+
+  handleCancel = () => {
+    this.setState({ visible: false })
+  }
+
+  handleDelete = item => {
+    console.log('handleDelete')
+    const { dispatch } = this.props
+    dispatch({ type: 'goods/deleteCategory', payload: item })
+  }
+
+  handleCreate = () => {
+    const form = this.formRef.props.form
+    form.validateFields((err, values) => {
+      if (err) {
+        return
+      }
+
+      const { dispatch } = this.props
+
+      let category: Category = {
+        name: values.name,
+        sort: values.sort
+      }
+
+      dispatch({
+        type: 'goods/createCategory',
+        payload: category
+      })
+
+      console.log('Received values of form: ', values)
+
+      form.resetFields()
+      this.setState({ visible: false })
+    })
+  }
+
+  saveFormRef = formRef => {
+    this.formRef = formRef
+  }
+
+  render() {
+    const { categoryList } = this.props.goods
     return (
       <Dashboard>
-        <Table
-          columns={columns}
-          expandedRowRender={record => <p style={{ margin: 0 }}>{record.description}</p>}
-          dataSource={data}
-        />
+        <div>
+          <Button type="primary" onClick={this.showModal}>
+            新建
+          </Button>
+          <Table
+            className="table"
+            columns={columns()}
+            dataSource={categoryList}
+            rowKey={(item: Category) => {
+              return item.objectId
+            }}
+          />
+          <CollectionCreateForm
+            wrappedComponentRef={this.saveFormRef}
+            visible={this.state.visible}
+            onCancel={this.handleCancel}
+            onCreate={this.handleCreate}
+          />
+        </div>
       </Dashboard>
     )
   }

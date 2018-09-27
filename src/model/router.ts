@@ -37,6 +37,4 @@ const model = {
   }
 }
 
-const urlsWithoutAuth = ['/', '/login', '/register']
-
 export default model

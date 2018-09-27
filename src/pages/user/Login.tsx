@@ -4,39 +4,33 @@ import WithDva from 'dva-utils/store'
 import { Form, Icon, Input, Button, Checkbox } from 'antd'
 const FormItem = Form.Item
 
-@WithDva(({ user }) => {
-  return { user }
+@WithDva(({ common }) => {
+  return { common }
 })
 @Form.create()
 export default class NormalLoginForm extends React.Component {
   props: {
+    dispatch: Function
     form: any
   }
 
   handleSubmit = e => {
     e.preventDefault()
 
-    // const { dispatch } = this.props
-    console.log(this.props)
+    const { dispatch } = this.props
 
     this.props.form.validateFields((err, values) => {
       if (!err) {
         console.log('Received values of form: ', values)
-        // dispatch({
-        //   type: 'user/login',
-        //   payload: {
-        //     username: values.username,
-        //     password: values.password
-        //   }
-        // })
+        dispatch({
+          type: 'user/login',
+          payload: {
+            username: values.username,
+            password: values.password
+          }
+        })
       }
     })
-  }
-
-  componentDidMount() {
-    const { form } = this.props
-    console.log('form = ')
-    console.log(form)
   }
 
   render() {

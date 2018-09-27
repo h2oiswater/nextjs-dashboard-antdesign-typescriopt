@@ -10,25 +10,32 @@
 2. npm i
 3. npm run dev
 
+**replace LeanCloud API_KEY & APP_ID with yourself**
+
 ## change logs
-7. 9-20
-    - support next.js 7
-6. 9-19
-   - add some page
-7. 9-18
-   - add menu model
-8. 9-16
-   - add redux and it's friends
-   - add dva
-   - use dva
-   - writing templates
-9. 9-12
-   - add antd
-10. 9-11 
+
+8. 9-27
+   - use [leancloud](https://leancloud.cn)
+   - add some api support
+   - add category manager
+9. 9-20
+   - support next.js 7
+10. 9-19
+    - add some page
+11. 9-18
+    - add menu model
+12. 9-16
+    - add redux and it's friends
+    - add dva
+    - use dva
+    - writing templates
+13. 9-12
+    - add antd
+14. 9-11 
     - add koa
     - add default _app,_document, _error
     - add some test layouts
-11. 9-7
+15. 9-7
     - init nextjs repo
     - add ts,scss config
     - add axios and a simple wrapper

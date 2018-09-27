@@ -9,8 +9,8 @@ const model = {
   effects: {
     *login({ payload }, { put, call }) {
       console.log(payload)
-      yield call(userAPI.login, {})
-      yield put({ type: 'add' })
+      let result = yield call(userAPI.login, payload)
+      console.log(result)
     }
   }
 }
