@@ -15,7 +15,9 @@
 ![screen_shot_1](screenShots/screen_shot_2.png)
 
 ## change logs
-
+9. 9-28
+    - finish category function
+    - prepare design a HOC for functions like category does
 8. 9-27
    - use [leancloud](https://leancloud.cn)
    - add some api support
