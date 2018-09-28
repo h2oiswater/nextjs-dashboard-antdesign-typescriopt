@@ -31,6 +31,7 @@ export function categoryDelete(data: Category): Promise<any> {
 
 export function category(data: Query): Promise<any> {
   data.class = CLASS_CATEGORY_NAME
+  data.count = 1
   return HttpClient.get(`/classes/${CLASS_CATEGORY_NAME}`, data).then(data => {
     return data.data
   })

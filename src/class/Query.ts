@@ -6,4 +6,5 @@ export default interface Category {
   order?: string
   include?: string
   keys?: string
+  count?: number
 }

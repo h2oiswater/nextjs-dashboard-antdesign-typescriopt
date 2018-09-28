@@ -44,6 +44,7 @@ interface CollectionCreateFormProps {
   onCancel: any
   onCreate: any
   form: any
+  currentCategory: Category
 }
 const CollectionCreateForm = Form.create()(
   class extends React.Component<CollectionCreateFormProps, any> {
@@ -115,8 +116,24 @@ export default class CategoryListPage extends React.Component<
 
     if (item) {
       dispatch({ type: 'goods/updateCurrentCategory', payload: item })
+      // set value
+      if (this.formRef) {
+        this.formRef.props.form.setFieldsValue({
+          name: item.name,
+          sort: item.sort
+        })
+      }
     }
     this.setState({ visible: true })
+  }
+
+  handleTableChange = (pagination, filters, sorter) => {
+    const { dispatch } = this.props
+    let current = pagination.current
+    dispatch({
+      type: 'goods/getCategoryList',
+      payload: current
+    })
   }
 
   handleCancel = () => {
@@ -124,7 +141,6 @@ export default class CategoryListPage extends React.Component<
   }
 
   handleDelete = item => {
-    console.log('handleDelete')
     const { dispatch } = this.props
     dispatch({ type: 'goods/deleteCategory', payload: item })
   }
@@ -160,7 +176,8 @@ export default class CategoryListPage extends React.Component<
   }
 
   render() {
-    const { categoryList } = this.props.goods
+    const { categoryList, currentCategory, categoryCount } = this.props.goods
+
     return (
       <Dashboard>
         <div>
@@ -171,15 +188,20 @@ export default class CategoryListPage extends React.Component<
             className="table"
             columns={columns()}
             dataSource={categoryList}
+            pagination={{
+              total: categoryCount
+            }}
             rowKey={(item: Category) => {
               return item.objectId
             }}
+            onChange={this.handleTableChange}
           />
           <CollectionCreateForm
             wrappedComponentRef={this.saveFormRef}
             visible={this.state.visible}
             onCancel={this.handleCancel}
             onCreate={this.handleCreate}
+            currentCategory={currentCategory}
           />
         </div>
       </Dashboard>
