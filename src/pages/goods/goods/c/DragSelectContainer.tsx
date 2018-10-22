@@ -27,7 +27,6 @@ export default class DragSelectContainer extends Component<
   }
 
   _onMouseMove = e => {
-    console.log(e)
     if (!this.state.isMouseDown) return
 
     this.setState({
@@ -49,13 +48,49 @@ export default class DragSelectContainer extends Component<
   }
 
   _updateCurrentState = () => {
+    let isInResult = []
     let dragContainer: HTMLElement = this.refs.dragContainer
     if (dragContainer && dragContainer.children) {
       let children: HTMLCollection = dragContainer.children
-      children.item(0).getBoundingClientRect()
-      children.item(1).getBoundingClientRect()
-      console.log()
-      console.log()
+      for (let i = 0; i < children.length; i++) {
+        let ele = children.item(i)
+        let rect = ele.getBoundingClientRect()
+        let left = rect.left
+        let right = left + rect.width
+        let top = rect.top
+        let bottom = rect.top + rect.height
+
+        let mLeft
+        let mRight
+        let mTop
+        let mBottom
+        if (this.state.startX < this.state.currentX) {
+          mLeft = this.state.startX
+          mRight = this.state.currentX
+        } else {
+          mLeft = this.state.currentX
+          mRight = this.state.startX
+        }
+
+        if (this.state.startY < this.state.currentY) {
+          mTop = this.state.startY
+          mBottom = this.state.currentY
+        } else {
+          mTop = this.state.currentY
+          mBottom = this.state.startY
+        }
+
+        let isNotIn =
+          mRight < left || mLeft > right || mBottom < top || mTop > bottom
+
+        if (!isNotIn) {
+          isInResult.push(i)
+        }
+      }
+      isInResult.pop()
+      this.props.onSelected(isInResult)
+    } else {
+      this.props.onSelected([])
     }
   }
 
