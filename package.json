@@ -19,7 +19,9 @@
     "md5": "^2.2.1",
     "next": "^7.0.0",
     "react": "^16.5.2",
-    "react-dom": "^16.5.2"
+    "react-dom": "^16.5.2",
+    "react-ds": "^1.10.0",
+    "react-selectable-fast": "^2.1.1"
   },
   "license": "ISC",
   "devDependencies": {

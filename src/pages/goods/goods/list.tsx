@@ -1,11 +1,20 @@
 import React from 'react'
 import Dashboard from '@layouts/Dashboard'
+import DragSelectContainer from './c/DragSelectContainer'
+import ToolBar from './c/ToolBar'
+import Item from './c/Item'
 
-export default class ApiPage extends React.Component {
-  render () {
+export default class GoodsList extends React.Component {
+  render() {
     return (
       <Dashboard>
-       <p>商品列表</p>
+        <div>
+          <ToolBar />
+          <DragSelectContainer>
+            <Item />
+            <Item />
+          </DragSelectContainer>
+        </div>
       </Dashboard>
     )
   }
