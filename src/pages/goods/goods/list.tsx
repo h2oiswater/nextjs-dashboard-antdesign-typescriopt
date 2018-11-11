@@ -3,35 +3,85 @@ import Dashboard from '@layouts/Dashboard'
 import DragSelectContainer from './c/DragSelectContainer'
 import ToolBar from './c/ToolBar'
 import Item from './c/Item'
+import GoodsForm from './c/GoodsForm'
 
-export default class GoodsList extends React.Component {
-  state = {
-    selectedItems: []
-  }
+type GoodsListProps = {}
 
-  _renderSelectedItemsName = () => {
-    let txt = JSON.stringify(this.state.selectedItems)
-    return <p>{txt}</p>
-  }
+type GoodsListStates = {
+  selectedItems: Array<object>
+  isMutilSelect: boolean
+  isEditDialogShow: boolean
+}
+
+const initialState = {
+  selectedItems: [],
+  isMutilSelect: false,
+  isEditDialogShow: false
+}
+type State = Readonly<typeof initialState>
+
+export default class GoodsList extends React.Component<
+  GoodsListProps,
+  GoodsListStates
+> {
+  readonly state: State = initialState
 
   render() {
     return (
       <Dashboard>
         <div>
-          <ToolBar />
+          <ToolBar
+            showButtons={[
+              {
+                id: 1,
+                text: 'New'
+              },
+              {
+                id: 2,
+                text: 'Edit'
+              },
+              {
+                id: 3,
+                text: 'Delete'
+              },
+              {
+                id: 4,
+                text: 'Unselect All'
+              }
+            ]}
+            onButtonClicked={id => {
+              switch (id) {
+                case 1:
+                  this.setState({
+                    isEditDialogShow: true
+                  })
+                  break
+              }
+            }}
+            search={key => alert(key)}
+          />
           <DragSelectContainer
+            enable={this.state.isMutilSelect}
             onSelected={result => {
               this.setState({
                 selectedItems: result
               })
             }}
           >
-            <Item />
-            <Item />
+            <Item isSelected={false} />
           </DragSelectContainer>
-          {this._renderSelectedItemsName()}
+          <GoodsForm
+            visible={this.state.isEditDialogShow}
+            onCancel={this.handleDialogOnCancel}
+          />
         </div>
       </Dashboard>
     )
   }
+
+  private handleDialogOnCancel = () => this.setState(showEditDialog(false))
 }
+
+const showEditDialog = (isShow: boolean) => ({
+  isEditDialogShow: isShow
+})

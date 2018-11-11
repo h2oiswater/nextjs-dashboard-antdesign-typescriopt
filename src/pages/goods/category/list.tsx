@@ -6,39 +6,6 @@ import './list.less'
 import Category from '../../../class/Category'
 const FormItem = Form.Item
 
-let columns = function getColunms() {
-  return [
-    { title: 'ID', dataIndex: 'objectId', key: 'objectId' },
-    { title: '名称', dataIndex: 'name', key: 'name' },
-    { title: '排序', dataIndex: 'sort', key: 'sort' },
-    {
-      title: '操作',
-      dataIndex: '',
-      key: 'x',
-      render: item => (
-        <p>
-          <a
-            onClick={() => {
-              this.showModal(item)
-            }}
-          >
-            编辑
-          </a>
-          <Popconfirm
-            title="您确认删除该分类了吗？"
-            onConfirm={() => {
-              this.handleDelete(item)
-            }}
-            okText="确定"
-            cancelText="取消"
-          >
-            <a style={{ marginLeft: 10 }}>删除</a>
-          </Popconfirm>
-        </p>
-      )
-    }
-  ]
-}
 interface CollectionCreateFormProps {
   visible: boolean
   onCancel: any
@@ -99,8 +66,7 @@ export default class CategoryListPage extends React.Component<
 
   constructor(props) {
     super(props)
-
-    columns = columns.bind(this)
+    console.log('constructor')
   }
 
   componentDidMount() {
@@ -109,11 +75,11 @@ export default class CategoryListPage extends React.Component<
     dispatch({
       type: 'goods/getCategoryList'
     })
+    console.log('componentDidMount')
   }
 
   showModal = (item: Category) => {
     const { dispatch } = this.props
-
     if (item) {
       dispatch({ type: 'goods/updateCurrentCategory', payload: item })
       // set value
@@ -124,6 +90,7 @@ export default class CategoryListPage extends React.Component<
         })
       }
     }
+
     this.setState({ visible: true })
   }
 
@@ -175,6 +142,40 @@ export default class CategoryListPage extends React.Component<
     this.formRef = formRef
   }
 
+  columns = () => {
+    return [
+      { title: 'ID', dataIndex: 'objectId', key: 'objectId' },
+      { title: '名称', dataIndex: 'name', key: 'name' },
+      { title: '排序', dataIndex: 'sort', key: 'sort' },
+      {
+        title: '操作',
+        dataIndex: '',
+        key: 'x',
+        render: item => (
+          <p>
+            <a
+              onClick={() => {
+                this.showModal(item)
+              }}
+            >
+              编辑
+            </a>
+            <Popconfirm
+              title="您确认删除该分类了吗？"
+              onConfirm={() => {
+                this.handleDelete(item)
+              }}
+              okText="确定"
+              cancelText="取消"
+            >
+              <a style={{ marginLeft: 10 }}>删除</a>
+            </Popconfirm>
+          </p>
+        )
+      }
+    ]
+  }
+
   render() {
     const { categoryList, currentCategory, categoryCount } = this.props.goods
 
@@ -186,7 +187,7 @@ export default class CategoryListPage extends React.Component<
           </Button>
           <Table
             className="table"
-            columns={columns()}
+            columns={this.columns()}
             dataSource={categoryList}
             pagination={{
               total: categoryCount

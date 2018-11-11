@@ -1,9 +1,9 @@
 import React, { Component } from 'react'
-import ReactDOM from 'react-dom'
 import './DragSelectContainer.style.less'
 
 interface DragSelectContainerProps {
   onSelected: Function
+  enable: boolean
 }
 
 export default class DragSelectContainer extends Component<
@@ -18,7 +18,8 @@ export default class DragSelectContainer extends Component<
     isMoving: false,
     isMouseDown: false
   }
-  _onMouseDown = (e: MouseEvent) => {
+  _onMouseDown = e => {
+    if (!this.props.enable) return
     this.setState({
       startX: e.clientX,
       startY: e.clientY,
@@ -40,7 +41,7 @@ export default class DragSelectContainer extends Component<
     this._updateCurrentState()
   }
 
-  _onMouseUp = e => {
+  _onMouseUp = () => {
     this.setState({
       isMoving: false,
       isMouseDown: false
