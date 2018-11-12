@@ -15,6 +15,8 @@
 ![screen_shot_1](screenShots/screen_shot_2.png)
 
 ## change logs
+10. 11-13
+    - still working
 9. 9-28
     - finish category function
     - prepare design a HOC for functions like category does
