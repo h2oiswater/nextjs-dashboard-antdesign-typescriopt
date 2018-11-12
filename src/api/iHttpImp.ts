@@ -4,47 +4,36 @@ import axios from './axioxBuilder'
 import md5 from 'md5'
 import { LEAN_API_KEY } from './constants'
 
+export function getHeaders() {
+  let timeStamp = new Date().getTime()
+  let token = get(keys.KEY_TOKEN)
+  return {
+    'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
+    'X-LC-Session': token
+  }
+}
+
 class HttpClient implements IHttp {
-  delete(url: string, params?: any): Promise<any> {
-    let timeStamp = new Date().getTime()
-    let token = get(keys.KEY_TOKEN)
+  delete(url: string, params?: object): Promise<any> {
     return axios.delete(url, {
       params,
-      headers: {
-        'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
-        'X-LC-Session': token
-      }
+      headers: getHeaders()
     })
   }
-  put(url: string, data: any): Promise<any> {
-    let timeStamp = new Date().getTime()
-    let token = get(keys.KEY_TOKEN)
+  put(url: string, data: object): Promise<any> {
     return axios.put(url, data, {
-      headers: {
-        'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
-        'X-LC-Session': token
-      }
+      headers: getHeaders()
     })
   }
-  get(url: string, params?: any): Promise<any> {
-    let timeStamp = new Date().getTime()
-    let token = get(keys.KEY_TOKEN)
+  get(url: string, params?: object): Promise<any> {
     return axios.get(url, {
       params,
-      headers: {
-        'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
-        'X-LC-Session': token
-      }
+      headers: getHeaders()
     })
   }
-  post(url: string, data: any): Promise<any> {
-    let timeStamp = new Date().getTime()
-    let token = get(keys.KEY_TOKEN)
+  post(url: string, data: object): Promise<any> {
     return axios.post(url, data, {
-      headers: {
-        'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
-        'X-LC-Session': token
-      }
+      headers: getHeaders()
     })
   }
 }

@@ -1,4 +1,4 @@
-export default interface Category {
+export default interface Goods {
   // 描述
   desc?: string
   // 分类

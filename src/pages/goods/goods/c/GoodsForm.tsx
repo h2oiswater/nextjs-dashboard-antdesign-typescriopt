@@ -2,20 +2,15 @@ import React, { Component } from 'react'
 import { Form, Upload, Icon, Modal, Input, Select, Switch } from 'antd'
 const FormItem = Form.Item
 const Option = Select.Option
+import axios from 'axios'
+import { getUploadUrl } from '../../../../api/constants'
+import { getHeaders } from '../../../../api/iHttpImp'
 
 class PicturesWall extends React.Component {
   state = {
     previewVisible: false,
     previewImage: '',
-    fileList: [
-      {
-        uid: '-1',
-        name: 'xxx.png',
-        status: 'done',
-        url:
-          'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png'
-      }
-    ]
+    fileList: []
   }
 
   handleCancel = () => this.setState({ previewVisible: false })
@@ -40,11 +35,21 @@ class PicturesWall extends React.Component {
     return (
       <div className="clearfix">
         <Upload
-          action="//jsonplaceholder.typicode.com/posts/"
           listType="picture-card"
           fileList={fileList}
           onPreview={this.handlePreview}
           onChange={this.handleChange}
+          customRequest={files => {
+            const { file } = files
+            let formData = new FormData()
+            formData.append('file', file)
+            axios.post(getUploadUrl(file.name), formData, {
+              headers: {
+                'X-LC-Id': 'DpnvHL3ttpjzk5UvHnSEedNo-gzGzoHsz',
+                'X-LC-Key': 'vGLWcKIk9nh1udRwF44o1AsS'
+              }
+            })
+          }}
         >
           {fileList.length >= 3 ? null : uploadButton}
         </Upload>
@@ -62,7 +67,7 @@ class PicturesWall extends React.Component {
 
 type GoodsFormProps = {
   visible: boolean
-  onCancel: Function
+  onCancel(): Function
 }
 
 export default class GoodsForm extends Component<GoodsFormProps, {}> {
