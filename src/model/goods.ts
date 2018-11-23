@@ -18,7 +18,7 @@ const model = {
     updateCategoryList(state, { payload }) {
       return {
         ...state,
-        categoryList: payload.results,
+        categoryList: payload.result,
         categoryCount: payload.count,
         categoryPage: payload.categoryPage
       }
@@ -32,18 +32,26 @@ const model = {
       let page = yield select(state => state.goods.categoryPage)
 
       if (payload) {
-        page = payload
+        if (typeof payload === 'string' && payload === 'all') {
+          page = -1
+        } else {
+          page = payload
+        }
       }
 
       let pageSize = yield select(state => state.goods.perPageSize)
-      let query: Query = {
-        limit: pageSize,
-        skip: (page - 1) * pageSize
-      }
-      let result = yield call(goodsAPI.category, query)
+      let query: Query =
+        page !== -1
+          ? {
+              limit: pageSize,
+              skip: (page - 1) * pageSize
+            }
+          : {}
+      let result: Array<Category> = yield call(goodsAPI.category, query)
+
       yield put({
         type: 'updateCategoryList',
-        payload: { ...result, categoryPage: page }
+        payload: { result, categoryPage: page }
       })
     },
     *createCategory(action: { payload: Category }, { select, call, put }) {
@@ -61,7 +69,6 @@ const model = {
       yield put({ type: 'getCategoryList' })
     },
     *deleteCategory(action: { payload: Category }, { call, put }) {
-      console.log(action.payload)
       yield call(goodsAPI.categoryDelete, action.payload)
 
       yield put({ type: 'getCategoryList' })

@@ -1,4 +1,4 @@
-import HttpClient from '../iHttpImp'
+import { apiGet } from '../api'
 // import { keys, set } from '../../utils/localStorage'
 import Category from '../../class/Category'
 import Query from '../../class/Query'
@@ -29,10 +29,11 @@ export function categoryDelete(data: Category): Promise<any> {
   })
 }
 
-export function category(data: Query): Promise<any> {
+export function category(data: Query): Promise<Array<Category>> {
   data.class = CLASS_CATEGORY_NAME
   data.count = 1
-  return HttpClient.get(`/classes/${CLASS_CATEGORY_NAME}`, data).then(data => {
-    return data.data
+  return apiGet<Array<Category>>({
+    url: `/classes/${CLASS_CATEGORY_NAME}`,
+    params: data
   })
 }

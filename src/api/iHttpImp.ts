@@ -1,39 +1,25 @@
-import { keys, get } from '../utils/localStorage'
-import IHttp from './interfaces/ihttp'
+import IHttp, { RequestConfig, HTTP_METHODS } from './interfaces/IHttp'
 import axios from './axioxBuilder'
-import md5 from 'md5'
-import { LEAN_API_KEY } from './constants'
-
-export function getHeaders() {
-  let timeStamp = new Date().getTime()
-  let token = get(keys.KEY_TOKEN)
-  return {
-    'X-LC-Sign': md5(timeStamp + LEAN_API_KEY) + ',' + timeStamp,
-    'X-LC-Session': token
-  }
-}
 
 class HttpClient implements IHttp {
-  delete(url: string, params?: object): Promise<any> {
-    return axios.delete(url, {
-      params,
-      headers: getHeaders()
-    })
+  request(
+    url: string,
+    params?: object,
+    config = { method: HTTP_METHODS.GET } as RequestConfig
+  ): Promise<any> {
+    return this._request(url, params, config)
   }
-  put(url: string, data: object): Promise<any> {
-    return axios.put(url, data, {
-      headers: getHeaders()
-    })
-  }
-  get(url: string, params?: object): Promise<any> {
-    return axios.get(url, {
-      params,
-      headers: getHeaders()
-    })
-  }
-  post(url: string, data: object): Promise<any> {
-    return axios.post(url, data, {
-      headers: getHeaders()
+
+  private _request(
+    url: string,
+    params: object,
+    config?: RequestConfig
+  ): Promise<any> {
+    return axios.request({
+      url,
+      method: config.method,
+      data: params,
+      headers: config.headers
     })
   }
 }

@@ -1,11 +1,14 @@
 import React from 'react'
 import Dashboard from '@layouts/Dashboard'
+import WithDva from 'dva-utils/store'
 import DragSelectContainer from './c/DragSelectContainer'
 import ToolBar from './c/ToolBar'
 import Item from './c/Item'
 import GoodsForm from './c/GoodsForm'
 
-type GoodsListProps = {}
+type GoodsListProps = {
+  dispatch: any
+}
 
 type GoodsListStates = {
   selectedItems: Array<object>
@@ -20,11 +23,23 @@ const initialState = {
 }
 type State = Readonly<typeof initialState>
 
+@WithDva(({ goods }) => {
+  return { goods }
+})
 export default class GoodsList extends React.Component<
   GoodsListProps,
   GoodsListStates
 > {
   readonly state: State = initialState
+
+  componentDidMount() {
+    const { dispatch } = this.props
+
+    dispatch({
+      type: 'goods/getCategoryList',
+      payload: 'all'
+    })
+  }
 
   render() {
     return (

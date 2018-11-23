@@ -4,9 +4,10 @@ const FormItem = Form.Item
 const Option = Select.Option
 import axios from 'axios'
 import { getUploadUrl } from '../../../../api/constants'
-import { getHeaders } from '../../../../api/iHttpImp'
 
 class PicturesWall extends React.Component {
+  private uploadedImgs = {}
+
   state = {
     previewVisible: false,
     previewImage: '',
@@ -39,16 +40,21 @@ class PicturesWall extends React.Component {
           fileList={fileList}
           onPreview={this.handlePreview}
           onChange={this.handleChange}
-          customRequest={files => {
-            const { file } = files
+          customRequest={({ file, onSuccess, onError }) => {
             let formData = new FormData()
             formData.append('file', file)
-            axios.post(getUploadUrl(file.name), formData, {
-              headers: {
-                'X-LC-Id': 'DpnvHL3ttpjzk5UvHnSEedNo-gzGzoHsz',
-                'X-LC-Key': 'vGLWcKIk9nh1udRwF44o1AsS'
-              }
-            })
+            axios
+              .post(getUploadUrl(file.name), formData, {
+                headers: {
+                  'X-LC-Id': 'DpnvHL3ttpjzk5UvHnSEedNo-gzGzoHsz',
+                  'X-LC-Key': 'vGLWcKIk9nh1udRwF44o1AsS'
+                }
+              })
+              .then(data => {
+                this.uploadedImgs[file.uid] = data.data.url
+                onSuccess(null, file)
+              })
+              .catch(() => onError())
           }}
         >
           {fileList.length >= 3 ? null : uploadButton}
@@ -67,7 +73,7 @@ class PicturesWall extends React.Component {
 
 type GoodsFormProps = {
   visible: boolean
-  onCancel(): Function
+  onCancel(): void
 }
 
 export default class GoodsForm extends Component<GoodsFormProps, {}> {

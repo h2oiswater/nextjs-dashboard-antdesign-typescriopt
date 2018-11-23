@@ -8,3 +8,5 @@ export function getUploadUrl(name: string) {
     8
   )}.api.lncld.net/1.1/files/${name}`
 }
+
+export const BASE_API_URL = 'https://api.leancloud.cn/1.1'

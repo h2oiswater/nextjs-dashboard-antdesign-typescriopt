@@ -75,7 +75,6 @@ export default class CategoryListPage extends React.Component<
     dispatch({
       type: 'goods/getCategoryList'
     })
-    console.log('componentDidMount')
   }
 
   showModal = (item: Category) => {
