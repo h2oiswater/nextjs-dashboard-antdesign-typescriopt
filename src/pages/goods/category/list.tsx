@@ -64,6 +64,8 @@ export default class CategoryListPage extends React.Component<
     visible: false
   }
 
+  formRef: Form
+
   constructor(props) {
     super(props)
     console.log('constructor')
@@ -181,7 +183,7 @@ export default class CategoryListPage extends React.Component<
     return (
       <Dashboard>
         <div>
-          <Button type="primary" onClick={this.showModal}>
+          <Button type="primary" onClick={() => this.showModal}>
             新建
           </Button>
           <Table

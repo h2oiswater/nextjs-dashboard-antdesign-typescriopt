@@ -1,4 +1,4 @@
-import IHttp, { RequestConfig, HTTP_METHODS } from './interfaces/IHttp'
+import IHttp, { RequestConfig, HTTP_METHODS } from './interfaces/iHttp'
 import axios from './axioxBuilder'
 
 class HttpClient implements IHttp {

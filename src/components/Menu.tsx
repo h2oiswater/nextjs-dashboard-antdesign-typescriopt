@@ -15,7 +15,7 @@ export default class Sider extends React.Component {
       case '1':
         dispatch({
           type: 'router/updatePath',
-          path: '/goods/category/list'
+          path: '/goods/category/List'
         })
         break
       case '2':

@@ -2,7 +2,7 @@ import HttpClient from './iHttpImp'
 import md5 from 'md5'
 import { LEAN_API_KEY, LEAN_API_ID, BASE_API_URL } from './constants'
 import { keys, get } from '../utils/localStorage'
-import { HTTP_METHODS, RequestConfig } from './interfaces/IHttp'
+import { HTTP_METHODS, RequestConfig } from './interfaces/iHttp'
 
 export function getHeaders() {
   let timeStamp = new Date().getTime()
