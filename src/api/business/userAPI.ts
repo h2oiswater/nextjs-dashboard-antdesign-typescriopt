@@ -1,14 +1,11 @@
 import Router from 'next/router'
-import HttpClient from '../iHttpImp'
+import { apiGet } from '../api'
 import { keys, set } from '../../utils/localStorage'
 
-export function login(data: {
-  username: string
-  password: string
-}): Promise<any> {
-  return HttpClient.get('/login', data).then(data => {
-    set(keys.KEY_TOKEN, data.data.sessionToken)
+export function login(params): Promise<any> {
+  return apiGet({ url: '/login', params }).then(data => {
+    set(keys.KEY_TOKEN, data.sessionToken)
     Router.replace('/')
-    return data.data
+    return data
   })
 }

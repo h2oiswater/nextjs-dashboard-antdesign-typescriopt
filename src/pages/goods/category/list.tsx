@@ -79,7 +79,7 @@ export default class CategoryListPage extends React.Component<
     })
   }
 
-  showModal = (item: Category) => {
+  showModal = (item?: Category) => {
     const { dispatch } = this.props
     if (item) {
       dispatch({ type: 'goods/updateCurrentCategory', payload: item })
@@ -183,7 +183,7 @@ export default class CategoryListPage extends React.Component<
     return (
       <Dashboard>
         <div>
-          <Button type="primary" onClick={() => this.showModal}>
+          <Button type="primary" onClick={() => this.showModal()}>
             新建
           </Button>
           <Table

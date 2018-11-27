@@ -6,6 +6,25 @@ import ToolBar from './c/ToolBar'
 import Item from './c/Item'
 import GoodsForm from './c/GoodsForm'
 
+const showButtons = [
+  {
+    id: 1,
+    text: 'New'
+  },
+  {
+    id: 2,
+    text: 'Edit'
+  },
+  {
+    id: 3,
+    text: 'Delete'
+  },
+  {
+    id: 4,
+    text: 'Unselect All'
+  }
+]
+
 type GoodsListProps = {
   dispatch: any
 }
@@ -46,24 +65,7 @@ export default class GoodsList extends React.Component<
       <Dashboard>
         <div>
           <ToolBar
-            showButtons={[
-              {
-                id: 1,
-                text: 'New'
-              },
-              {
-                id: 2,
-                text: 'Edit'
-              },
-              {
-                id: 3,
-                text: 'Delete'
-              },
-              {
-                id: 4,
-                text: 'Unselect All'
-              }
-            ]}
+            showButtons={showButtons}
             onButtonClicked={id => {
               switch (id) {
                 case 1:

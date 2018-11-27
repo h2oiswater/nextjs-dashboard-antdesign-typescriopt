@@ -1,6 +1,8 @@
 import * as goodsAPI from '../api/business/goodsAPI'
 import Category from '../class/Category'
 import Query from '../class/Query'
+import Goods from '../class/Goods'
+import { CategoryListRep } from '../class/goodsTypes'
 
 const model = {
   namespace: 'goods',
@@ -18,7 +20,7 @@ const model = {
     updateCategoryList(state, { payload }) {
       return {
         ...state,
-        categoryList: payload.result,
+        categoryList: payload.results,
         categoryCount: payload.count,
         categoryPage: payload.categoryPage
       }
@@ -47,12 +49,15 @@ const model = {
               skip: (page - 1) * pageSize
             }
           : {}
-      let result: Array<Category> = yield call(goodsAPI.category, query)
+      let result: CategoryListRep = yield call(goodsAPI.category, query)
 
       yield put({
         type: 'updateCategoryList',
-        payload: { result, categoryPage: page }
+        payload: { ...result, categoryPage: page }
       })
+    },
+    *createGood( action: {payload: Goods} ) {
+      
     },
     *createCategory(action: { payload: Category }, { select, call, put }) {
       let currentCategory = yield select(state => state.goods.currentCategory)

@@ -31,11 +31,14 @@ function _buildRequestConfig({
 }
 
 const errorHanding = err => {
+  console.log('-------- error --------')
   console.error(err)
 }
 
 function _wrapperResponse<T>(data: any): T {
-  return data.results as T
+  console.log('-------- response --------')
+  console.log(data)
+  return data as T
 }
 
 export async function apiGet<T>(params: APIParams): Promise<T | undefined> {
@@ -55,6 +58,10 @@ export async function apiPut<T>(params: APIParams): Promise<T | undefined> {
 }
 
 async function _api<T>(params: APIParams, method: HTTP_METHODS) {
+  console.log('-------- request start --------')
+  console.log(params)
+  console.log(method)
+  console.log('-------- request end --------')
   try {
     let res = await HttpClient.request(
       BASE_API_URL.concat(params.url),

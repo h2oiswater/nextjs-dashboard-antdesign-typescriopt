@@ -18,6 +18,7 @@ class HttpClient implements IHttp {
     return axios.request({
       url,
       method: config.method,
+      params,
       data: params,
       headers: config.headers
     })
