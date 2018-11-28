@@ -1,16 +1,18 @@
 import React from 'react'
+// @ts-ignore
 import Dashboard from '@layouts/Dashboard'
+// @ts-ignore
 import WithDva from 'dva-utils/store'
 import { Table, Button, Modal, Form, Input, Popconfirm } from 'antd'
+import { FormComponentProps } from 'antd/lib/form';
 import './list.less'
 import Category from '../../../class/Category'
 const FormItem = Form.Item
 
-interface CollectionCreateFormProps {
+interface CollectionCreateFormProps extends FormComponentProps{
   visible: boolean
   onCancel: any
   onCreate: any
-  form: any
   currentCategory: Category
 }
 const CollectionCreateForm = Form.create()(

@@ -1,11 +1,17 @@
 import React, { Component } from 'react'
 import { Form, Upload, Icon, Modal, Input, Select, Switch } from 'antd'
-const FormItem = Form.Item
-const Option = Select.Option
+import { FormComponentProps } from 'antd/lib/form'
 import axios from 'axios'
 import { getUploadUrl } from '../../../../api/constants'
+import Category from '../../../../class/Category'
+const FormItem = Form.Item
+const Option = Select.Option
 
-class PicturesWall extends React.Component {
+type PicturesWallProps = {
+  handlePicsChanged: Function
+}
+
+class PicturesWall extends React.Component<PicturesWallProps, any> {
   private uploadedImgs = {}
 
   state = {
@@ -23,7 +29,10 @@ class PicturesWall extends React.Component {
     })
   }
 
-  handleChange = ({ fileList }) => this.setState({ fileList })
+  handleChange = ({ fileList }) => {
+    this.setState({ fileList })
+    this.props.handlePicsChanged(fileList)
+  }
 
   render() {
     const { previewVisible, previewImage, fileList } = this.state
@@ -71,36 +80,85 @@ class PicturesWall extends React.Component {
   }
 }
 
-type GoodsFormProps = {
+interface GoodsFormProps extends FormComponentProps {
+  categoryList: Array<Category>
   visible: boolean
   onCancel(): void
+  onOK(): void
 }
 
-export default class GoodsForm extends Component<GoodsFormProps, {}> {
-  render() {
-    return (
-      <Modal visible={this.props.visible} onCancel={this.props.onCancel}>
-        <Form>
-          <FormItem label="商品图片">
-            <PicturesWall />
-          </FormItem>
-          <FormItem label="商品名称">
-            <Input />
-          </FormItem>
-          <FormItem label="商品描述">
-            <Input />
-          </FormItem>
-          <FormItem label="商品分类">
-            <Select placeholder="Select a option and change input text above">
-              <Option value="male">male</Option>
-              <Option value="female">female</Option>
-            </Select>
-          </FormItem>
-          <FormItem label="立即上架">
-            <Switch defaultChecked />
-          </FormItem>
-        </Form>
-      </Modal>
-    )
+const CollectionCreateForm = Form.create()(
+  class GoodsForm extends Component<GoodsFormProps, {}> {
+    state = {
+      hasPics: false
+    }
+
+    render() {
+      const { categoryList, visible, onCancel, onOK, form } = this.props
+      const { getFieldDecorator } = form
+
+      return (
+        <Modal visible={visible} onCancel={onCancel} onOk={onOK}>
+          <Form>
+            <FormItem
+              label="商品图片"
+              validateStatus={this.state.hasPics ? 'success' : 'error'}
+              help={this.state.hasPics ? '默认第一张图片为主图哦' : '商品图片必传哦'}
+              required
+            >
+              <PicturesWall handlePicsChanged={this.handlePicsChanged} />
+            </FormItem>
+            <FormItem label="商品名称">
+              {getFieldDecorator('name', {
+                rules: [
+                  {
+                    required: true,
+                    message: '名称为必填项目'
+                  }
+                ]
+              })(<Input />)}
+            </FormItem>
+            <FormItem label="商品描述">
+              {getFieldDecorator('des', {
+                rules: [
+                  {
+                    required: true,
+                    message: '描述为必填项目'
+                  }
+                ]
+              })(<Input />)}
+            </FormItem>
+            <FormItem label="商品分类">
+              {getFieldDecorator('type', {
+                rules: [{ required: true, message: '选商品分类啊' }]
+              })(
+                <Select placeholder="商品分类">
+                  {function() {
+                    return categoryList.map(item => {
+                      return (
+                        <Option key={item.objectId} value={item.objectId}>
+                          {item.name}
+                        </Option>
+                      )
+                    })
+                  }.call(this)}
+                </Select>
+              )}
+            </FormItem>
+            <FormItem label="立即上架">
+              <Switch defaultChecked />
+            </FormItem>
+          </Form>
+        </Modal>
+      )
+    }
+
+    private handlePicsChanged = data => {
+      this.setState({
+        hasPics: data.length > 0
+      })
+    }
   }
-}
+)
+
+export default CollectionCreateForm

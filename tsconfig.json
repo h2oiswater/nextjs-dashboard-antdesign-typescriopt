@@ -15,9 +15,7 @@
     "sourceMap": true,
     "skipLibCheck": true,
     "baseUrl": ".",
-    "lib": [
-      "dom",
-      "es2016"
-    ]
+    "lib": ["dom", "es2016"],
+    "outDir": "./src/.next"
   }
 }

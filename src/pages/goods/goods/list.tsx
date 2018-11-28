@@ -1,10 +1,17 @@
 import React from 'react'
+import { Form } from 'antd'
+// @ts-ignore
 import Dashboard from '@layouts/Dashboard'
+// @ts-ignore
 import WithDva from 'dva-utils/store'
 import DragSelectContainer from './c/DragSelectContainer'
 import ToolBar from './c/ToolBar'
 import Item from './c/Item'
 import GoodsForm from './c/GoodsForm'
+
+import Goods from '../../../class/Goods'
+
+import { GoodsState } from '../../../model/goods'
 
 const showButtons = [
   {
@@ -27,6 +34,7 @@ const showButtons = [
 
 type GoodsListProps = {
   dispatch: any
+  goods: GoodsState
 }
 
 type GoodsListStates = {
@@ -51,6 +59,11 @@ export default class GoodsList extends React.Component<
 > {
   readonly state: State = initialState
 
+  formRef: Form
+  saveFormRef = formRef => {
+    this.formRef = formRef
+  }
+
   componentDidMount() {
     const { dispatch } = this.props
 
@@ -61,6 +74,8 @@ export default class GoodsList extends React.Component<
   }
 
   render() {
+    const { categoryList } = this.props.goods
+
     return (
       <Dashboard>
         <div>
@@ -88,8 +103,11 @@ export default class GoodsList extends React.Component<
             <Item isSelected={false} />
           </DragSelectContainer>
           <GoodsForm
+            wrappedComponentRef={this.saveFormRef}
             visible={this.state.isEditDialogShow}
+            categoryList={categoryList}
             onCancel={this.handleDialogOnCancel}
+            onOK={this.handleCreate}
           />
         </div>
       </Dashboard>
@@ -97,6 +115,32 @@ export default class GoodsList extends React.Component<
   }
 
   private handleDialogOnCancel = () => this.setState(showEditDialog(false))
+
+  private handleCreate = () => {
+    const form = this.formRef.props.form
+    form.validateFields((err, values) => {
+      console.log('values')
+      console.log(values)
+      if (err) {
+        return
+      }
+
+      const { dispatch } = this.props
+
+      let good: Goods = {}
+
+      dispatch({
+        type: 'goods/createCategory',
+        payload: good
+      })
+
+      console.log('Received values of form: ', values)
+
+      form.resetFields()
+
+      this.handleDialogOnCancel()
+    })
+  }
 }
 
 const showEditDialog = (isShow: boolean) => ({

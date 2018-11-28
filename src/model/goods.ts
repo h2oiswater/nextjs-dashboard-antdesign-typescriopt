@@ -4,15 +4,19 @@ import Query from '../class/Query'
 import Goods from '../class/Goods'
 import { CategoryListRep } from '../class/goodsTypes'
 
+const initialState = {
+  categoryCount: 0,
+  currentCategory: {},
+  categoryList: [],
+  categoryPage: 1,
+  perPageSize: 10
+}
+
+export type GoodsState = Readonly<typeof initialState>
+
 const model = {
   namespace: 'goods',
-  state: {
-    categoryCount: 0,
-    currentCategory: {},
-    categoryList: [],
-    categoryPage: 1,
-    perPageSize: 10
-  },
+  state: initialState,
   reducers: {
     updateLoading(state, loading) {
       return { ...state, loading }
