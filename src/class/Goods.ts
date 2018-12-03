@@ -1,4 +1,5 @@
 export default interface Goods {
+  objectId?: string
   // 描述
   desc?: string
   // 分类

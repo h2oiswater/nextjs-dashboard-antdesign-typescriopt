@@ -4,6 +4,8 @@ import { LEAN_API_KEY, LEAN_API_ID, BASE_API_URL } from './constants'
 import { keys, get } from '../utils/localStorage'
 import { HTTP_METHODS, RequestConfig } from './interfaces/iHttp'
 
+const isLog = false
+
 export function getHeaders() {
   let timeStamp = new Date().getTime()
   let token = get(keys.KEY_TOKEN)
@@ -31,13 +33,13 @@ function _buildRequestConfig({
 }
 
 const errorHanding = err => {
-  console.log('-------- error --------')
-  console.error(err)
+  isLog && console.log('-------- error --------')
+  isLog && console.error(err)
 }
 
 function _wrapperResponse<T>(data: any): T {
-  console.log('-------- response --------')
-  console.log(data)
+  isLog && console.log('-------- response --------')
+  isLog && console.log(data)
   return data as T
 }
 
@@ -58,10 +60,10 @@ export async function apiPut<T>(params: APIParams): Promise<T | undefined> {
 }
 
 async function _api<T>(params: APIParams, method: HTTP_METHODS) {
-  console.log('-------- request start --------')
-  console.log(params)
-  console.log(method)
-  console.log('-------- request end --------')
+  isLog && console.log('-------- request start --------')
+  isLog && console.log(params)
+  isLog && console.log(method)
+  isLog && console.log('-------- request end --------')
   try {
     let res = await HttpClient.request(
       BASE_API_URL.concat(params.url),

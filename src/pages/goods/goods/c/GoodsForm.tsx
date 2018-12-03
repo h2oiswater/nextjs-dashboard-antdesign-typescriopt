@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Form, Upload, Icon, Modal, Input, Select, Switch } from 'antd'
+import { Form, Upload, Icon, Modal, Input, Select, Switch, Button } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import axios from 'axios'
 import { getUploadUrl } from '../../../../api/constants'
@@ -95,7 +95,58 @@ const CollectionCreateForm = Form.create()(
 
     render() {
       const { categoryList, visible, onCancel, onOK, form } = this.props
-      const { getFieldDecorator } = form
+      const { getFieldDecorator, getFieldValue } = form
+
+      const formItemLayout = {
+        labelCol: {
+          xs: { span: 24 },
+          sm: { span: 4 }
+        },
+        wrapperCol: {
+          xs: { span: 24 },
+          sm: { span: 20 }
+        }
+      }
+      const formItemLayoutWithOutLabel = {
+        wrapperCol: {
+          xs: { span: 24, offset: 0 },
+          sm: { span: 20, offset: 4 }
+        }
+      }
+
+      getFieldDecorator('keys', { initialValue: [] })
+      const keys = getFieldValue('keys')
+      const formItems = keys.map((k, index) => (
+        <FormItem
+          {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
+          label={index === 0 ? 'Passengers' : ''}
+          required={false}
+          key={k}
+        >
+          {getFieldDecorator(`names[${k}]`, {
+            validateTrigger: ['onChange', 'onBlur'],
+            rules: [
+              {
+                required: true,
+                whitespace: true,
+                message: "Please input passenger's name or delete this field."
+              }
+            ]
+          })(
+            <Input
+              placeholder="passenger name"
+              style={{ width: '60%', marginRight: 8 }}
+            />
+          )}
+          {keys.length > 1 ? (
+            <Icon
+              className="dynamic-delete-button"
+              type="minus-circle-o"
+              disabled={keys.length === 1}
+            />
+          ) : null}
+        </FormItem>
+      ))
 
       return (
         <Modal visible={visible} onCancel={onCancel} onOk={onOK}>
@@ -103,7 +154,9 @@ const CollectionCreateForm = Form.create()(
             <FormItem
               label="商品图片"
               validateStatus={this.state.hasPics ? 'success' : 'error'}
-              help={this.state.hasPics ? '默认第一张图片为主图哦' : '商品图片必传哦'}
+              help={
+                this.state.hasPics ? '默认第一张图片为主图哦' : '商品图片必传哦'
+              }
               required
             >
               <PicturesWall handlePicsChanged={this.handlePicsChanged} />
@@ -118,6 +171,27 @@ const CollectionCreateForm = Form.create()(
                 ]
               })(<Input />)}
             </FormItem>
+            {formItems.length === 0 ? (
+              <FormItem label="商品价格">
+                {getFieldDecorator('price', {
+                  rules: [
+                    {
+                      required: true,
+                      message: '价格为必填项目'
+                    }
+                  ]
+                })(<Input />)}
+              </FormItem>
+            ) : null}
+
+            {formItems}
+
+            <FormItem>
+              <Button type="dashed" style={{ width: '60%' }}>
+                <Icon type="plus" /> 添加规格
+              </Button>
+            </FormItem>
+
             <FormItem label="商品描述">
               {getFieldDecorator('des', {
                 rules: [
@@ -128,6 +202,7 @@ const CollectionCreateForm = Form.create()(
                 ]
               })(<Input />)}
             </FormItem>
+
             <FormItem label="商品分类">
               {getFieldDecorator('type', {
                 rules: [{ required: true, message: '选商品分类啊' }]

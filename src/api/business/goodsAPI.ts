@@ -5,6 +5,7 @@ import Query from '../../class/Query'
 import { CategoryListRep } from '../../class/goodsTypes'
 
 const CLASS_CATEGORY_NAME = 'Category'
+const CLASS_GOODS_NAME = 'Goods'
 
 export function categoryCreate(data: Category): Promise<any> {
   return apiPost({ url: `/classes/${CLASS_CATEGORY_NAME}`, params: data })

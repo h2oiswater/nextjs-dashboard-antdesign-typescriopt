@@ -4,12 +4,13 @@ import Dashboard from '@layouts/Dashboard'
 // @ts-ignore
 import WithDva from 'dva-utils/store'
 import { Table, Button, Modal, Form, Input, Popconfirm } from 'antd'
-import { FormComponentProps } from 'antd/lib/form';
+import { FormComponentProps } from 'antd/lib/form'
 import './list.less'
 import Category from '../../../class/Category'
+import { API_CLASS_NAME } from '../../../constants/className'
 const FormItem = Form.Item
 
-interface CollectionCreateFormProps extends FormComponentProps{
+interface CollectionCreateFormProps extends FormComponentProps {
   visible: boolean
   onCancel: any
   onCreate: any
@@ -52,11 +53,12 @@ const CollectionCreateForm = Form.create()(
 
 interface CategoryListPageProps {
   goods: any
+  api: any
   dispatch: any
 }
 
-@WithDva(({ goods }) => {
-  return { goods }
+@WithDva(({ api }) => {
+  return { api }
 })
 export default class CategoryListPage extends React.Component<
   CategoryListPageProps,
@@ -70,28 +72,31 @@ export default class CategoryListPage extends React.Component<
 
   constructor(props) {
     super(props)
-    console.log('constructor')
   }
 
   componentDidMount() {
     const { dispatch } = this.props
 
     dispatch({
-      type: 'goods/getCategoryList'
+      type: 'api/getList',
+      payload: {
+        className: API_CLASS_NAME.CATEGORY
+      }
     })
   }
 
   showModal = (item?: Category) => {
     const { dispatch } = this.props
-    if (item) {
-      dispatch({ type: 'goods/updateCurrentCategory', payload: item })
-      // set value
-      if (this.formRef) {
-        this.formRef.props.form.setFieldsValue({
-          name: item.name,
-          sort: item.sort
-        })
-      }
+    dispatch({
+      type: 'api/updateCurrent',
+      payload: { params: item ? item : {}, className: API_CLASS_NAME.CATEGORY }
+    })
+    // set value
+    if (this.formRef) {
+      this.formRef.props.form.setFieldsValue({
+        name: item ? item.name : '',
+        sort: item ? item.sort : ''
+      })
     }
 
     this.setState({ visible: true })
@@ -100,9 +105,13 @@ export default class CategoryListPage extends React.Component<
   handleTableChange = (pagination, filters, sorter) => {
     const { dispatch } = this.props
     let current = pagination.current
+
     dispatch({
-      type: 'goods/getCategoryList',
-      payload: current
+      type: 'api/getList',
+      payload: {
+        className: API_CLASS_NAME.CATEGORY,
+        params: current
+      }
     })
   }
 
@@ -112,7 +121,10 @@ export default class CategoryListPage extends React.Component<
 
   handleDelete = item => {
     const { dispatch } = this.props
-    dispatch({ type: 'goods/deleteCategory', payload: item })
+    dispatch({
+      type: 'api/delete',
+      payload: { params: item, className: API_CLASS_NAME.CATEGORY }
+    })
   }
 
   handleCreate = () => {
@@ -130,8 +142,11 @@ export default class CategoryListPage extends React.Component<
       }
 
       dispatch({
-        type: 'goods/createCategory',
-        payload: category
+        type: 'api/create',
+        payload: {
+          params: category,
+          className: API_CLASS_NAME.CATEGORY
+        }
       })
 
       console.log('Received values of form: ', values)
@@ -180,7 +195,9 @@ export default class CategoryListPage extends React.Component<
   }
 
   render() {
-    const { categoryList, currentCategory, categoryCount } = this.props.goods
+    let categoryList = this.props.api[API_CLASS_NAME.CATEGORY + 'List']
+    let categoryCount = this.props.api[API_CLASS_NAME.CATEGORY + 'Count']
+    let currentCategory = this.props.api[API_CLASS_NAME.CATEGORY + 'Current']
 
     return (
       <Dashboard>

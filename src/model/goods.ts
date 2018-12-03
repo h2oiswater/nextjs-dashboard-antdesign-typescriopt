@@ -6,9 +6,12 @@ import { CategoryListRep } from '../class/goodsTypes'
 
 const initialState = {
   categoryCount: 0,
-  currentCategory: {},
-  categoryList: [],
+  currentCategory: {} as Category,
+  currentGoods: {} as Goods,
+  categoryList: [] as Array<Category>,
+  goodsList: [] as Array<Goods>,
   categoryPage: 1,
+  goodsPage: 1,
   perPageSize: 10
 }
 
@@ -60,8 +63,19 @@ const model = {
         payload: { ...result, categoryPage: page }
       })
     },
-    *createGood( action: {payload: Goods} ) {
-      
+    *createGoods(action: { payload: Goods }, { select, call, put }) {
+      let currentGoods: Goods = yield select(state => state.goods.currentCategory)
+      if (currentGoods.objectId) {
+        let goods = {
+          ...action.payload,
+          objectId: currentGoods.objectId
+        }
+        yield call(goodsAPI.categoryUpdate, goods)
+      } else {
+        yield call(goodsAPI.categoryCreate, action.payload)
+      }
+      yield put({ type: 'updateCurrentCategory', payload: {} })
+      yield put({ type: 'getCategoryList' })
     },
     *createCategory(action: { payload: Category }, { select, call, put }) {
       let currentCategory = yield select(state => state.goods.currentCategory)

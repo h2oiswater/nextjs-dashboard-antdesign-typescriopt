@@ -130,7 +130,7 @@ export default class GoodsList extends React.Component<
       let good: Goods = {}
 
       dispatch({
-        type: 'goods/createCategory',
+        type: 'goods/createGoods',
         payload: good
       })
 
