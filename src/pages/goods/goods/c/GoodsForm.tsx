@@ -1,11 +1,27 @@
 import React, { Component } from 'react'
-import { Form, Upload, Icon, Modal, Input, Select, Switch, Button } from 'antd'
+import {
+  Form,
+  Upload,
+  Icon,
+  Modal,
+  Input,
+  Select,
+  Switch,
+  Button,
+  Row,
+  Col
+} from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
 import axios from 'axios'
 import { getUploadUrl } from '../../../../api/constants'
 import Category from '../../../../class/Category'
+
+import './GoodsForm.less'
+
 const FormItem = Form.Item
 const Option = Select.Option
+
+const TAG = 'GoodsForm'
 
 type PicturesWallProps = {
   handlePicsChanged: Function
@@ -87,66 +103,161 @@ interface GoodsFormProps extends FormComponentProps {
   onOK(): void
 }
 
+// 给动态组件用
+let id = 0
+let subID = 0
+
 const CollectionCreateForm = Form.create()(
   class GoodsForm extends Component<GoodsFormProps, {}> {
     state = {
       hasPics: false
     }
 
+    remove = k => {
+      const { form } = this.props
+      // can use data-binding to get
+      const keys = form.getFieldValue('keys')
+
+      // can use data-binding to set
+      form.setFieldsValue({
+        keys: keys.filter(key => key !== k)
+      })
+    }
+
+    add = () => {
+      const { form } = this.props
+      // can use data-binding to get
+      const keys = form.getFieldValue('keys')
+      const nextKeys = keys.concat(++id)
+      // can use data-binding to set
+      // important! notify form to detect changes
+      form.setFieldsValue({
+        keys: nextKeys
+      })
+    }
+
+    addSubSpec = k => {
+      const { form } = this.props
+      form.getFieldDecorator(`specs${k}subSpecsKeys`, { initialValue: [] })
+      const keys = form.getFieldValue(`specs${k}subSpecsKeys`)
+      console.log(TAG, keys)
+      const nextKeys = keys.concat(++subID)
+      // can use data-binding to set
+      // important! notify form to detect changes
+      let result = {}
+      result[`specs${k}subSpecsKeys`] = nextKeys
+      form.setFieldsValue(result)
+    }
+
+    removeSubSpec = (k: number, sk: number) => {
+      const { form } = this.props
+      // can use data-binding to get
+      const keys = form.getFieldValue(`specs${k}subSpecsKeys`)
+
+      let result = {}
+      result[`specs${k}subSpecsKeys`] = keys.filter(key => key !== sk)
+
+      // can use data-binding to set
+      form.setFieldsValue(result)
+    }
+
+    getSubSpec = k => {
+      const { form } = this.props
+      const { getFieldDecorator, getFieldValue } = form
+
+      getFieldDecorator(`specs${k}subSpecsKeys`, { initialValue: [] })
+      const subKeys = getFieldValue(`specs${k}subSpecsKeys`)
+
+      const subFormItems = subKeys.map((sk: number) => (
+        <Row gutter={8} key={`${k}${sk}`}>
+          <Col span={8}>
+            {getFieldDecorator(`specs${k}subSpecs${sk}name`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: '请输入规格名称'
+                }
+              ]
+            })(<Input placeholder="子规格名称" />)}
+          </Col>
+          <Col span={8}>
+            {getFieldDecorator(`specs${k}subSpecs${sk}price`, {
+              validateTrigger: ['onChange', 'onBlur'],
+              rules: [
+                {
+                  required: true,
+                  whitespace: true,
+                  message: '请输入规格名称'
+                }
+              ]
+            })(<Input placeholder="子规格名称" />)}
+          </Col>
+          <Col span={8}>
+            {getFieldDecorator(`specs${k}subSpecs${sk}isBase`, {
+              valuePropName: 'checked',
+              initialValue: false
+            })(
+              <Switch
+                checkedChildren="基准价"
+                unCheckedChildren="修饰价"
+              />
+            )}
+            <Icon
+              style={{ marginLeft: '8px' }}
+              className="dynamic-delete-button"
+              type="minus-circle-o"
+              onClick={() => this.removeSubSpec(k, sk)}
+            />
+          </Col>
+        </Row>
+      ))
+      return subFormItems
+    }
+
     render() {
       const { categoryList, visible, onCancel, onOK, form } = this.props
       const { getFieldDecorator, getFieldValue } = form
 
-      const formItemLayout = {
-        labelCol: {
-          xs: { span: 24 },
-          sm: { span: 4 }
-        },
-        wrapperCol: {
-          xs: { span: 24 },
-          sm: { span: 20 }
-        }
-      }
-      const formItemLayoutWithOutLabel = {
-        wrapperCol: {
-          xs: { span: 24, offset: 0 },
-          sm: { span: 20, offset: 4 }
-        }
-      }
-
       getFieldDecorator('keys', { initialValue: [] })
       const keys = getFieldValue('keys')
-      const formItems = keys.map((k, index) => (
-        <FormItem
-          {...(index === 0 ? formItemLayout : formItemLayoutWithOutLabel)}
-          label={index === 0 ? 'Passengers' : ''}
-          required={false}
-          key={k}
-        >
-          {getFieldDecorator(`names[${k}]`, {
-            validateTrigger: ['onChange', 'onBlur'],
-            rules: [
-              {
-                required: true,
-                whitespace: true,
-                message: "Please input passenger's name or delete this field."
-              }
-            ]
-          })(
-            <Input
-              placeholder="passenger name"
-              style={{ width: '60%', marginRight: 8 }}
-            />
-          )}
-          {keys.length > 1 ? (
-            <Icon
-              className="dynamic-delete-button"
-              type="minus-circle-o"
-              disabled={keys.length === 1}
-            />
-          ) : null}
-        </FormItem>
-      ))
+      const formItems = keys.map(k => {
+        const subFormItem = this.getSubSpec(k)
+        return (
+          <FormItem label="规格" required={false} key={k}>
+            <Row gutter={8} key={`specRow${k}`}>
+              <Col span={12}>
+                {getFieldDecorator(`specs[${k}]`, {
+                  validateTrigger: ['onChange', 'onBlur'],
+                  rules: [
+                    {
+                      required: true,
+                      whitespace: true,
+                      message: '请输入规格名称'
+                    }
+                  ]
+                })(<Input placeholder="规格名称" />)}
+              </Col>
+              <Col span={12}>
+                <Icon
+                  className="dynamic-delete-button"
+                  type="minus-circle-o"
+                  onClick={() => this.remove(k)}
+                />
+                <Button
+                  type="primary"
+                  onClick={() => this.addSubSpec(k)}
+                  style={{ marginLeft: '8px' }}
+                >
+                  添加子规格
+                </Button>
+              </Col>
+            </Row>
+            {subFormItem}
+          </FormItem>
+        )
+      })
 
       return (
         <Modal visible={visible} onCancel={onCancel} onOk={onOK}>
@@ -187,7 +298,7 @@ const CollectionCreateForm = Form.create()(
             {formItems}
 
             <FormItem>
-              <Button type="dashed" style={{ width: '60%' }}>
+              <Button type="dashed" onClick={this.add} style={{ width: '60%' }}>
                 <Icon type="plus" /> 添加规格
               </Button>
             </FormItem>
