@@ -8,6 +8,7 @@ import {
   Select,
   Switch,
   Button,
+  InputNumber,
   Row,
   Col
 } from 'antd'
@@ -189,21 +190,18 @@ const CollectionCreateForm = Form.create()(
                 {
                   required: true,
                   whitespace: true,
-                  message: '请输入规格名称'
+                  message: '请输入价格'
                 }
               ]
-            })(<Input placeholder="子规格名称" />)}
+            })(
+              <InputNumber style={{ width: '100%' }} placeholder="子规格价格" />
+            )}
           </Col>
           <Col span={8}>
             {getFieldDecorator(`specs${k}subSpecs${sk}isBase`, {
               valuePropName: 'checked',
               initialValue: false
-            })(
-              <Switch
-                checkedChildren="基准价"
-                unCheckedChildren="修饰价"
-              />
-            )}
+            })(<Switch checkedChildren="基准价" unCheckedChildren="修饰价" />)}
             <Icon
               style={{ marginLeft: '8px' }}
               className="dynamic-delete-button"
@@ -332,7 +330,9 @@ const CollectionCreateForm = Form.create()(
               )}
             </FormItem>
             <FormItem label="立即上架">
-              <Switch defaultChecked />
+              {getFieldDecorator('type', {
+                rules: [{ required: true, message: '选商品分类啊' }]
+              })(<Switch defaultChecked />)}
             </FormItem>
           </Form>
         </Modal>

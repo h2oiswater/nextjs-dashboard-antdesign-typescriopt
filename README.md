@@ -11,6 +11,5 @@
 **replace LeanCloud API_KEY & APP_ID with yourself**
 
 ## What it looks like
-![screen_shot_1](screenShots/screen_shot_1.png)
 ![screen_shot_1](screenShots/screen_shot_2.png)
 ![screen_shot_1](screenShots/screen_shot_3.png)
