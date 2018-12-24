@@ -72,7 +72,8 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
     // Should provide an event to pass value to Form.
     const onChange = this.props.onChange
     if (onChange) {
-      onChange(Object.assign({}, this.state, fileList))
+      const [...newFileList] = fileList
+      onChange(newFileList)
     }
   }
 
@@ -287,7 +288,13 @@ const CollectionCreateForm = Form.create()(
           <Form>
             <FormItem label="商品图片">
               {getFieldDecorator('imageList', {
-                initialValue: []
+                initialValue: [],
+                rules: [
+                  {
+                    required: true,
+                    message: '至少上传一张商品图片'
+                  }
+                ]
               })(<PicturesWall />)}
             </FormItem>
             <FormItem label="商品名称">
