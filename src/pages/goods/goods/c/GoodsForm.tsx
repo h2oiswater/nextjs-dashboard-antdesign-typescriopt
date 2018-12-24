@@ -25,16 +25,36 @@ const Option = Select.Option
 const TAG = 'GoodsForm'
 
 type PicturesWallProps = {
-  handlePicsChanged: Function
+  onChange?: Function
 }
 
+// note
+// 自定义或第三方的表单控件，也可以与 Form 组件一起使用。只要该组件遵循以下的约定：
+// 提供受控属性 value 或其它与 valuePropName 的值同名的属性。
+// 提供 onChange 事件或 trigger 的值同名的事件。
+// 不能是函数式组件。
 class PicturesWall extends React.Component<PicturesWallProps, any> {
   private uploadedImgs = {}
 
-  state = {
-    previewVisible: false,
-    previewImage: '',
-    fileList: []
+  static getDerivedStateFromProps(nextProps) {
+    // Should be a controlled component.
+    if ('imageList' in nextProps) {
+      return {
+        ...(nextProps.value || [])
+      }
+    }
+    return null
+  }
+
+  constructor(props) {
+    super(props)
+
+    const imageList = props.imageList || []
+    this.state = {
+      fileList: imageList,
+      previewVisible: false,
+      previewImage: ''
+    }
   }
 
   handleCancel = () => this.setState({ previewVisible: false })
@@ -48,7 +68,12 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
 
   handleChange = ({ fileList }) => {
     this.setState({ fileList })
-    this.props.handlePicsChanged(fileList)
+
+    // Should provide an event to pass value to Form.
+    const onChange = this.props.onChange
+    if (onChange) {
+      onChange(Object.assign({}, this.state, fileList))
+    }
   }
 
   render() {
@@ -260,15 +285,10 @@ const CollectionCreateForm = Form.create()(
       return (
         <Modal visible={visible} onCancel={onCancel} onOk={onOK}>
           <Form>
-            <FormItem
-              label="商品图片"
-              validateStatus={this.state.hasPics ? 'success' : 'error'}
-              help={
-                this.state.hasPics ? '默认第一张图片为主图哦' : '商品图片必传哦'
-              }
-              required
-            >
-              <PicturesWall handlePicsChanged={this.handlePicsChanged} />
+            <FormItem label="商品图片">
+              {getFieldDecorator('imageList', {
+                initialValue: []
+              })(<PicturesWall />)}
             </FormItem>
             <FormItem label="商品名称">
               {getFieldDecorator('name', {
@@ -282,14 +302,21 @@ const CollectionCreateForm = Form.create()(
             </FormItem>
             {formItems.length === 0 ? (
               <FormItem label="商品价格">
-                {getFieldDecorator('price', {
+                {getFieldDecorator(`price`, {
+                  validateTrigger: ['onChange', 'onBlur'],
                   rules: [
                     {
                       required: true,
-                      message: '价格为必填项目'
+                      whitespace: true,
+                      message: '请输入价格'
                     }
                   ]
-                })(<Input />)}
+                })(
+                  <InputNumber
+                    style={{ width: '100%' }}
+                    placeholder="商品价格"
+                  />
+                )}
               </FormItem>
             ) : null}
 
@@ -337,12 +364,6 @@ const CollectionCreateForm = Form.create()(
           </Form>
         </Modal>
       )
-    }
-
-    private handlePicsChanged = data => {
-      this.setState({
-        hasPics: data.length > 0
-      })
     }
   }
 )
