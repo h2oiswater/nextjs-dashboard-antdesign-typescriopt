@@ -1,15 +1,18 @@
+import { Spec } from './goodsTypes'
 export default interface Goods {
   objectId?: string
   // 描述
-  desc?: string
+  desc: string
   // 分类
-  cid?: string
+  cid: string
   // 是否上架 0 不上架 1 上架
-  display?: number
+  display: number
   // 商品图片
-  images?: string
+  images: Array<String>
   // 价格
   price?: number
   // 名称
-  title?: string
+  title: string
+  // 规格
+  spec?: Array<Spec>
 }

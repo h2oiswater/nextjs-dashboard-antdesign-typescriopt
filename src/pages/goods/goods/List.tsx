@@ -12,6 +12,7 @@ import GoodsForm from './c/GoodsForm'
 import Goods from '../../../class/Goods'
 
 import { GoodsState } from '../../../model/goods'
+import { number } from 'prop-types'
 
 const showButtons = [
   {
@@ -119,8 +120,8 @@ export default class GoodsList extends React.Component<
   private handleCreate = () => {
     const form = this.formRef.props.form
     form.validateFields((err, values) => {
-      console.log('values')
-      console.log(values)
+      console.log('Received values of form: ', values)
+
       if (err) {
         return
       }
@@ -129,12 +130,10 @@ export default class GoodsList extends React.Component<
 
       let good: Goods = {}
 
-      dispatch({
-        type: 'goods/createGoods',
-        payload: good
-      })
-
-      console.log('Received values of form: ', values)
+      // dispatch({
+      //   type: 'goods/createGoods',
+      //   payload: good
+      // })
 
       form.resetFields()
 

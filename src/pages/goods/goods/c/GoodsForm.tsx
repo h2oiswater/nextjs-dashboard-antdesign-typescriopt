@@ -153,52 +153,62 @@ const CollectionCreateForm = Form.create()(
 
     add = () => {
       const { form } = this.props
-      // can use data-binding to get
-      const keys = form.getFieldValue('keys')
-      const nextKeys = keys.concat(++id)
+      form.getFieldDecorator(`specs`, { initialValue: [] })
+      const specs = form.getFieldValue('specs')
+      const nextSpecs = specs.push({
+        id: id++
+      })
       // can use data-binding to set
       // important! notify form to detect changes
       form.setFieldsValue({
-        keys: nextKeys
+        specs: nextSpecs
       })
     }
 
     addSubSpec = k => {
       const { form } = this.props
-      form.getFieldDecorator(`specs${k}subSpecsKeys`, { initialValue: [] })
-      const keys = form.getFieldValue(`specs${k}subSpecsKeys`)
-      console.log(TAG, keys)
+      form.getFieldDecorator(`specs`, { initialValue: [] })
+      let specs = form.getFieldValue(`specs`)
+      console.log(TAG, specs)
+
+      specs = specs ? specs : {}
+      const keys = specs[k].keys ? specs[k].keys : ''
       const nextKeys = keys.concat(++subID)
       // can use data-binding to set
       // important! notify form to detect changes
-      let result = {}
-      result[`specs${k}subSpecsKeys`] = nextKeys
-      form.setFieldsValue(result)
+      specs[k].subSpecsKeys = nextKeys
+      console.log(TAG, specs)
+      form.setFieldsValue({
+        specs
+      })
     }
 
     removeSubSpec = (k: number, sk: number) => {
       const { form } = this.props
       // can use data-binding to get
-      const keys = form.getFieldValue(`specs${k}subSpecsKeys`)
+      let specs = form.getFieldValue(`specs`)
 
-      let result = {}
-      result[`specs${k}subSpecsKeys`] = keys.filter(key => key !== sk)
+      specs.filter(key => {
+        console.log(TAG, key)
+        return key !== sk
+      })
 
       // can use data-binding to set
-      form.setFieldsValue(result)
+      // form.setFieldsValue(result)
     }
 
     getSubSpec = k => {
       const { form } = this.props
       const { getFieldDecorator, getFieldValue } = form
 
-      getFieldDecorator(`specs${k}subSpecsKeys`, { initialValue: [] })
-      const subKeys = getFieldValue(`specs${k}subSpecsKeys`)
+      let specs = getFieldValue(`specs`)
+      specs = specs ? specs : {}
+      const subKeys = specs[k].subSpecsKeys ? specs[k].subSpecsKeys : []
 
       const subFormItems = subKeys.map((sk: number) => (
         <Row gutter={8} key={`${k}${sk}`}>
           <Col span={8}>
-            {getFieldDecorator(`specs${k}subSpecs${sk}name`, {
+            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][name]`, {
               validateTrigger: ['onChange', 'onBlur'],
               rules: [
                 {
@@ -210,7 +220,7 @@ const CollectionCreateForm = Form.create()(
             })(<Input placeholder="子规格名称" />)}
           </Col>
           <Col span={8}>
-            {getFieldDecorator(`specs${k}subSpecs${sk}price`, {
+            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][price]`, {
               validateTrigger: ['onChange', 'onBlur'],
               rules: [
                 {
@@ -224,7 +234,7 @@ const CollectionCreateForm = Form.create()(
             )}
           </Col>
           <Col span={8}>
-            {getFieldDecorator(`specs${k}subSpecs${sk}isBase`, {
+            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][isBase]`, {
               valuePropName: 'checked',
               initialValue: false
             })(<Switch checkedChildren="基准价" unCheckedChildren="修饰价" />)}
@@ -252,7 +262,7 @@ const CollectionCreateForm = Form.create()(
           <FormItem label="规格" required={false} key={k}>
             <Row gutter={8} key={`specRow${k}`}>
               <Col span={12}>
-                {getFieldDecorator(`specs[${k}]`, {
+                {getFieldDecorator(`specs[${k}][name]`, {
                   validateTrigger: ['onChange', 'onBlur'],
                   rules: [
                     {

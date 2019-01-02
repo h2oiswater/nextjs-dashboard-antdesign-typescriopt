@@ -1,21 +1,24 @@
 import Category from './Category'
+import Goods from './Goods'
 
-
-export type Spec = {
-    name: string
-    detail: Array<SepcDetail>
-}
-
-/**
- * 商品价格等于基准价格 + 修饰价格
- */
-export type SepcDetail = {
-    title: string
-    basePrice?: number // 基准价格
-    fixPrice?: number // 修饰价格
+export interface Spec {
+  objectId?: string
+  // 名称
+  name: string
+  // 价格
+  price: number
+  // 价格类型 0 基准价 1 修饰价
+  type: number
+  // 子规格
+  subSpecs?: Array<Spec>
 }
 
 export type CategoryListRep = {
-    result: Array<Category>
-    count: number
+  result: Array<Category>
+  count: number
+}
+
+export type GoodsListRep = {
+  result: Array<Goods>
+  count: number
 }
