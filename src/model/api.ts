@@ -94,4 +94,6 @@ const model = {
   }
 }
 
+export type MODEL_API = Readonly<typeof model>
+
 export default model

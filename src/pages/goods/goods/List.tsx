@@ -1,5 +1,5 @@
 import React from 'react'
-import { Form } from 'antd'
+import { Form, Pagination } from 'antd'
 // @ts-ignore
 import Dashboard from '@layouts/Dashboard'
 // @ts-ignore
@@ -10,9 +10,9 @@ import Item from './c/Item'
 import GoodsForm from './c/GoodsForm'
 
 import Goods from '../../../class/Goods'
-
 import { GoodsState } from '../../../model/goods'
-import { number } from 'prop-types'
+import { MODEL_API } from '../../../model/api'
+import { API_CLASS_NAME } from '../../../constants/className'
 
 const showButtons = [
   {
@@ -35,7 +35,8 @@ const showButtons = [
 
 type GoodsListProps = {
   dispatch: any
-  goods: GoodsState
+  goods: GoodsState,
+  api: MODEL_API
 }
 
 type GoodsListStates = {
@@ -51,8 +52,8 @@ const initialState = {
 }
 type State = Readonly<typeof initialState>
 
-@WithDva(({ goods }) => {
-  return { goods }
+@WithDva(({ api, }: { api: MODEL_API }) => {
+  return { api }
 })
 export default class GoodsList extends React.Component<
   GoodsListProps,
@@ -69,13 +70,16 @@ export default class GoodsList extends React.Component<
     const { dispatch } = this.props
 
     dispatch({
-      type: 'goods/getCategoryList',
-      payload: 'all'
+      type: 'api/getList',
+      payload: {
+        className: API_CLASS_NAME.CATEGORY
+      }
     })
   }
 
   render() {
-    const { categoryList } = this.props.goods
+    let categoryList = this.props.api[API_CLASS_NAME.CATEGORY + 'List']
+    categoryList = categoryList ? categoryList : []
 
     return (
       <Dashboard>
@@ -103,6 +107,7 @@ export default class GoodsList extends React.Component<
           >
             <Item isSelected={false} />
           </DragSelectContainer>
+          <Pagination defaultCurrent={1} total={50} />
           <GoodsForm
             wrappedComponentRef={this.saveFormRef}
             visible={this.state.isEditDialogShow}
@@ -128,12 +133,23 @@ export default class GoodsList extends React.Component<
 
       const { dispatch } = this.props
 
-      let good: Goods = {}
+      let good: Goods = {
+        title: values.name,
+        desc: values.des,
+        cid: values.type,
+        spec: values.specs,
+        display: values.now,
+        images: values.imageList,
+        price: values.price
+      }
 
-      // dispatch({
-      //   type: 'goods/createGoods',
-      //   payload: good
-      // })
+      dispatch({
+        type: 'api/create',
+        payload: {
+          params: good,
+          className: API_CLASS_NAME.GOODS
+        }
+      })
 
       form.resetFields()
 

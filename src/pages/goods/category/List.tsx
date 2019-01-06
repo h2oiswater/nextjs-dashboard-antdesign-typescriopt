@@ -5,6 +5,7 @@ import Dashboard from '@layouts/Dashboard'
 import WithDva from 'dva-utils/store'
 import { Table, Button, Modal, Form, Input, Popconfirm } from 'antd'
 import { FormComponentProps } from 'antd/lib/form'
+import { ColumnProps } from 'antd/lib/table'
 import './list.less'
 import Category from '../../../class/Category'
 import { API_CLASS_NAME } from '../../../constants/className'
@@ -160,14 +161,13 @@ export default class CategoryListPage extends React.Component<
     this.formRef = formRef
   }
 
-  columns = () => {
+  columns = () : Array<ColumnProps<Category>>  => {
     return [
       { title: 'ID', dataIndex: 'objectId', key: 'objectId' },
       { title: '名称', dataIndex: 'name', key: 'name' },
       { title: '排序', dataIndex: 'sort', key: 'sort' },
       {
         title: '操作',
-        dataIndex: '',
         key: 'x',
         render: item => (
           <p>

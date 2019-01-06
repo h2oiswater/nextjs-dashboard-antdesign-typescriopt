@@ -16,6 +16,11 @@ import { FormComponentProps } from 'antd/lib/form'
 import axios from 'axios'
 import { getUploadUrl } from '../../../../api/constants'
 import Category from '../../../../class/Category'
+import {
+  Spec,
+  SPEC_TYPE_BASE,
+  SPEC_TYPE_MODIFY
+} from '../../../../class/goodsTypes'
 
 import './GoodsForm.less'
 
@@ -72,8 +77,15 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
     // Should provide an event to pass value to Form.
     const onChange = this.props.onChange
     if (onChange) {
-      const [...newFileList] = fileList
-      onChange(newFileList)
+      let imgs = fileList.filter(item => {
+          return this.uploadedImgs[item.uid]
+      })
+
+      imgs = imgs.map(item => {
+        return this.uploadedImgs[item.uid]
+      })
+
+      onChange(imgs)
     }
   }
 
@@ -103,7 +115,7 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
                 }
               })
               .then(data => {
-                this.uploadedImgs[file.uid] = data.data.url
+                this.uploadedImgs[file.uid] = data.data.objectId
                 onSuccess(null, file)
               })
               .catch(() => onError())
@@ -134,115 +146,135 @@ interface GoodsFormProps extends FormComponentProps {
 let id = 0
 let subID = 0
 
+const VALIDATE_MSG = '规格中存在空的名称、价格或者存在没有子规格，请检查'
+const initialState = {
+  specValidateStatus: true
+}
+
+type GoodsFormState = Readonly<typeof initialState>
+
 const CollectionCreateForm = Form.create()(
   class GoodsForm extends Component<GoodsFormProps, {}> {
-    state = {
-      hasPics: false
-    }
+    state: GoodsFormState = initialState
 
-    remove = k => {
+    remove = (k: string) => {
       const { form } = this.props
-      // can use data-binding to get
-      const keys = form.getFieldValue('keys')
-
-      // can use data-binding to set
+      let specs = form.getFieldValue('specs') as Array<Spec>
+      specs = specs.filter(item => item.objectId !== k)
       form.setFieldsValue({
-        keys: keys.filter(key => key !== k)
+        specs
       })
     }
 
     add = () => {
       const { form } = this.props
       form.getFieldDecorator(`specs`, { initialValue: [] })
-      const specs = form.getFieldValue('specs')
-      const nextSpecs = specs.push({
-        id: id++
+      const specs = form.getFieldValue('specs') as Array<Spec>
+      specs.push({
+        objectId: (id++).toString()
       })
-      // can use data-binding to set
-      // important! notify form to detect changes
-      form.setFieldsValue({
-        specs: nextSpecs
-      })
-    }
-
-    addSubSpec = k => {
-      const { form } = this.props
-      form.getFieldDecorator(`specs`, { initialValue: [] })
-      let specs = form.getFieldValue(`specs`)
-      console.log(TAG, specs)
-
-      specs = specs ? specs : {}
-      const keys = specs[k].keys ? specs[k].keys : ''
-      const nextKeys = keys.concat(++subID)
-      // can use data-binding to set
-      // important! notify form to detect changes
-      specs[k].subSpecsKeys = nextKeys
-      console.log(TAG, specs)
       form.setFieldsValue({
         specs
       })
     }
 
-    removeSubSpec = (k: number, sk: number) => {
+    addSubSpec = (k: string) => {
       const { form } = this.props
-      // can use data-binding to get
-      let specs = form.getFieldValue(`specs`)
+      const specs = form.getFieldValue(`specs`) as Array<Spec>
+      const thisSpecs = _getSpecs(specs, k)
+      const subSpecs = thisSpecs.subSpecs ? thisSpecs.subSpecs : []
 
-      specs.filter(key => {
-        console.log(TAG, key)
-        return key !== sk
+      subSpecs.push({
+        objectId: (subID++).toString(),
+        type: SPEC_TYPE_MODIFY
       })
 
-      // can use data-binding to set
-      // form.setFieldsValue(result)
+      let nextSpecs = specs.map(item => {
+        if (item.objectId === k) {
+          return {
+            ...item,
+            subSpecs
+          }
+        }
+        return item
+      })
+
+      form.setFieldsValue({
+        specs: nextSpecs
+      })
     }
 
-    getSubSpec = k => {
+    removeSubSpec = (k: string, sk: string) => {
       const { form } = this.props
-      const { getFieldDecorator, getFieldValue } = form
+      const specs = form.getFieldValue(`specs`) as Array<Spec>
+      const thisSpecs = _getSpecs(specs, k)
+
+      if (!thisSpecs || !thisSpecs.subSpecs) {
+        return
+      }
+
+      let nextSpecs = specs.map(item => {
+        if (item.objectId === k) {
+          item.subSpecs = item.subSpecs.filter(item => item.objectId !== sk)
+        }
+        return item
+      })
+
+      form.setFieldsValue({
+        specs: nextSpecs
+      })
+    }
+
+    getSubSpec = (k: string) => {
+      const { form } = this.props
+      const { getFieldValue } = form
 
       let specs = getFieldValue(`specs`)
-      specs = specs ? specs : {}
-      const subKeys = specs[k].subSpecsKeys ? specs[k].subSpecsKeys : []
+      const thisSpecs = _getSpecs(specs, k)
 
-      const subFormItems = subKeys.map((sk: number) => (
-        <Row gutter={8} key={`${k}${sk}`}>
+      if (!thisSpecs.subSpecs) {
+        return null
+      }
+      const subKeys = thisSpecs.subSpecs
+      const subFormItems = subKeys.map(sk => (
+        <Row gutter={8} key={`${k}${sk.objectId}`}>
           <Col span={8}>
-            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][name]`, {
-              validateTrigger: ['onChange', 'onBlur'],
-              rules: [
-                {
-                  required: true,
-                  whitespace: true,
-                  message: '请输入规格名称'
-                }
-              ]
-            })(<Input placeholder="子规格名称" />)}
+            <Input
+              placeholder="子规格名称"
+              onChange={e => {
+                this.handleValueChanged('name', e.target.value, k, sk.objectId)
+              }}
+              onBlur={this.handleBlurChanged}
+            />
           </Col>
           <Col span={8}>
-            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][price]`, {
-              validateTrigger: ['onChange', 'onBlur'],
-              rules: [
-                {
-                  required: true,
-                  whitespace: true,
-                  message: '请输入价格'
-                }
-              ]
-            })(
-              <InputNumber style={{ width: '100%' }} placeholder="子规格价格" />
-            )}
+            <InputNumber
+              style={{ width: '100%' }}
+              placeholder="子规格价格"
+              onChange={e => {
+                this.handleValueChanged('price', e, k, sk.objectId)
+              }}
+              onBlur={this.handleBlurChanged}
+            />
           </Col>
           <Col span={8}>
-            {getFieldDecorator(`specs[${k}]subSpecsKeys[${sk}][isBase]`, {
-              valuePropName: 'checked',
-              initialValue: false
-            })(<Switch checkedChildren="基准价" unCheckedChildren="修饰价" />)}
+            <Switch
+              checkedChildren="基准价"
+              unCheckedChildren="修饰价"
+              onChange={e => {
+                this.handleValueChanged(
+                  'type',
+                  e ? SPEC_TYPE_BASE : SPEC_TYPE_MODIFY,
+                  k,
+                  sk.objectId
+                )
+              }}
+            />
             <Icon
               style={{ marginLeft: '8px' }}
               className="dynamic-delete-button"
               type="minus-circle-o"
-              onClick={() => this.removeSubSpec(k, sk)}
+              onClick={() => this.removeSubSpec(k, sk.objectId)}
             />
           </Col>
         </Row>
@@ -250,38 +282,104 @@ const CollectionCreateForm = Form.create()(
       return subFormItems
     }
 
+    handleValueChanged = (
+      key: string,
+      value: any,
+      id: string,
+      subID?: string
+    ) => {
+      const { form } = this.props
+      const { getFieldValue } = form
+      const specs = getFieldValue('specs') as Array<Spec>
+      const nextSpecs = specs.map(item => {
+        if (item.objectId === id) {
+          if (!subID) {
+            // 更新父规格
+            item[key] = value
+          } else {
+            // 更新子规格
+            item.subSpecs = item.subSpecs.map(subItem => {
+              if (subItem.objectId === subID) {
+                subItem[key] = value
+              }
+              return subItem
+            })
+          }
+        }
+        return item
+      })
+
+      form.setFieldsValue({
+        specs: nextSpecs
+      })
+    }
+
+    handleBlurChanged = () => {
+      const { form } = this.props
+      const { getFieldValue } = form
+
+      const specs = getFieldValue('specs') as Array<Spec>
+
+      let passed = true
+      specs.map(item => {
+        if (item.subSpecs) {
+          item.subSpecs.map(subItem => {
+            if (!subItem.name || isNaN(subItem.price)) {
+              passed = false
+            }
+          })
+        } else {
+          passed = false
+        }
+        if (!item.name) {
+          passed = false
+        }
+        return item
+      })
+
+      this.setState({
+        specValidateStatus: passed
+      } as GoodsFormState)
+
+      return passed
+    }
+
     render() {
       const { categoryList, visible, onCancel, onOK, form } = this.props
       const { getFieldDecorator, getFieldValue } = form
 
-      getFieldDecorator('keys', { initialValue: [] })
-      const keys = getFieldValue('keys')
-      const formItems = keys.map(k => {
-        const subFormItem = this.getSubSpec(k)
+      getFieldDecorator('specs', { initialValue: [] })
+      const specs = getFieldValue('specs') as Array<Spec>
+
+      const formItems = specs.map(k => {
+        const subFormItem = this.getSubSpec(k.objectId)
         return (
-          <FormItem label="规格" required={false} key={k}>
-            <Row gutter={8} key={`specRow${k}`}>
+          <FormItem
+            label="规格"
+            required={false}
+            key={k.objectId}
+            validateStatus={this.state.specValidateStatus ? 'success' : 'error'}
+            help={this.state.specValidateStatus ? '' : VALIDATE_MSG}
+          >
+            <Row gutter={8} key={`specRow${k.objectId}`}>
               <Col span={12}>
-                {getFieldDecorator(`specs[${k}][name]`, {
-                  validateTrigger: ['onChange', 'onBlur'],
-                  rules: [
-                    {
-                      required: true,
-                      whitespace: true,
-                      message: '请输入规格名称'
-                    }
-                  ]
-                })(<Input placeholder="规格名称" />)}
+                <Input
+                  placeholder="规格名称"
+                  onChange={e => {
+                    this.handleValueChanged('name', e.target.value, k.objectId)
+                  }}
+                  onBlur={this.handleBlurChanged}
+                />
               </Col>
               <Col span={12}>
                 <Icon
                   className="dynamic-delete-button"
                   type="minus-circle-o"
-                  onClick={() => this.remove(k)}
+                  onClick={() => this.remove(k.objectId)}
                 />
                 <Button
                   type="primary"
-                  onClick={() => this.addSubSpec(k)}
+                  onClick={() => this.addSubSpec(k.objectId)}
                   style={{ marginLeft: '8px' }}
                 >
                   添加子规格
@@ -294,7 +392,15 @@ const CollectionCreateForm = Form.create()(
       })
 
       return (
-        <Modal visible={visible} onCancel={onCancel} onOk={onOK}>
+        <Modal
+          visible={visible}
+          onCancel={onCancel}
+          onOk={() => {
+            if (this.handleBlurChanged()) {
+              onOK()
+            }
+          }}
+        >
           <Form>
             <FormItem label="商品图片">
               {getFieldDecorator('imageList', {
@@ -319,7 +425,7 @@ const CollectionCreateForm = Form.create()(
             </FormItem>
             {formItems.length === 0 ? (
               <FormItem label="商品价格">
-                {getFieldDecorator(`price`, {
+                {getFieldDecorator('price', {
                   validateTrigger: ['onChange', 'onBlur'],
                   rules: [
                     {
@@ -374,8 +480,8 @@ const CollectionCreateForm = Form.create()(
               )}
             </FormItem>
             <FormItem label="立即上架">
-              {getFieldDecorator('type', {
-                rules: [{ required: true, message: '选商品分类啊' }]
+              {getFieldDecorator('now', {
+                initialValue: true
               })(<Switch defaultChecked />)}
             </FormItem>
           </Form>
@@ -384,5 +490,10 @@ const CollectionCreateForm = Form.create()(
     }
   }
 )
+
+function _getSpecs(array: Array<Spec>, id: string): Spec {
+  let result = array.filter(item => item.objectId === id)
+  return result.length > 0 ? result[0] : null
+}
 
 export default CollectionCreateForm
