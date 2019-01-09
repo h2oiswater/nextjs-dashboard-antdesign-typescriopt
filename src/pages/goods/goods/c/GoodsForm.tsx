@@ -41,22 +41,20 @@ type PicturesWallProps = {
 class PicturesWall extends React.Component<PicturesWallProps, any> {
   private uploadedImgs = {}
 
-  static getDerivedStateFromProps(nextProps) {
-    // Should be a controlled component.
-    if ('imageList' in nextProps) {
+  static getDerivedStateFromProps(nextProps, prevState) {
+    if (nextProps.value && nextProps.value.length > 0) {
       return {
-        ...(nextProps.value || [])
+        fileList: nextProps.value
       }
     }
+
     return null
   }
 
   constructor(props) {
     super(props)
-
-    const imageList = props.imageList || []
     this.state = {
-      fileList: imageList,
+      fileList: [],
       previewVisible: false,
       previewImage: ''
     }
@@ -72,21 +70,22 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
   }
 
   handleChange = ({ fileList }) => {
+    console.log(fileList)
     this.setState({ fileList })
 
-    // Should provide an event to pass value to Form.
-    const onChange = this.props.onChange
-    if (onChange) {
-      let imgs = fileList.filter(item => {
-          return this.uploadedImgs[item.uid]
-      })
+    // // Should provide an event to pass value to Form.
+    // const onChange = this.props.onChange
+    // if (onChange) {
+    //   let imgs = fileList.filter(item => {
+    //       return this.uploadedImgs[item.uid]
+    //   })
 
-      imgs = imgs.map(item => {
-        return this.uploadedImgs[item.uid]
-      })
+    //   imgs = imgs.map(item => {
+    //     return this.uploadedImgs[item.uid]
+    //   })
 
-      onChange(imgs)
-    }
+    //   onChange(imgs)
+    // }
   }
 
   render() {
@@ -115,7 +114,7 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
                 }
               })
               .then(data => {
-                this.uploadedImgs[file.uid] = data.data.objectId
+                this.uploadedImgs[file.uid] = data.data
                 onSuccess(null, file)
               })
               .catch(() => onError())
@@ -139,7 +138,7 @@ interface GoodsFormProps extends FormComponentProps {
   categoryList: Array<Category>
   visible: boolean
   onCancel(): void
-  onOK(): void
+  onOK(category: Category): void
 }
 
 // 给动态组件用
@@ -159,37 +158,37 @@ const CollectionCreateForm = Form.create()(
 
     remove = (k: string) => {
       const { form } = this.props
-      let specs = form.getFieldValue('specs') as Array<Spec>
-      specs = specs.filter(item => item.objectId !== k)
+      let spec = form.getFieldValue('spec') as Array<Spec>
+      spec = spec.filter(item => item.objectId !== k)
       form.setFieldsValue({
-        specs
+        spec
       })
     }
 
     add = () => {
       const { form } = this.props
-      form.getFieldDecorator(`specs`, { initialValue: [] })
-      const specs = form.getFieldValue('specs') as Array<Spec>
-      specs.push({
+      form.getFieldDecorator(`spec`, { initialValue: [] })
+      const spec = form.getFieldValue('spec') as Array<Spec>
+      spec.push({
         objectId: (id++).toString()
       })
       form.setFieldsValue({
-        specs
+        spec
       })
     }
 
     addSubSpec = (k: string) => {
       const { form } = this.props
-      const specs = form.getFieldValue(`specs`) as Array<Spec>
-      const thisSpecs = _getSpecs(specs, k)
-      const subSpecs = thisSpecs.subSpecs ? thisSpecs.subSpecs : []
+      const spec = form.getFieldValue(`spec`) as Array<Spec>
+      const thisSpec = _getSpec(spec, k)
+      const subSpecs = thisSpec.subSpecs ? thisSpec.subSpecs : []
 
       subSpecs.push({
         objectId: (subID++).toString(),
         type: SPEC_TYPE_MODIFY
       })
 
-      let nextSpecs = specs.map(item => {
+      let nextSpec = spec.map(item => {
         if (item.objectId === k) {
           return {
             ...item,
@@ -200,20 +199,20 @@ const CollectionCreateForm = Form.create()(
       })
 
       form.setFieldsValue({
-        specs: nextSpecs
+        spec: nextSpec
       })
     }
 
     removeSubSpec = (k: string, sk: string) => {
       const { form } = this.props
-      const specs = form.getFieldValue(`specs`) as Array<Spec>
-      const thisSpecs = _getSpecs(specs, k)
+      const spec = form.getFieldValue(`spec`) as Array<Spec>
+      const thisSpec = _getSpec(spec, k)
 
-      if (!thisSpecs || !thisSpecs.subSpecs) {
+      if (!thisSpec || !thisSpec.subSpecs) {
         return
       }
 
-      let nextSpecs = specs.map(item => {
+      let nextSpecs = spec.map(item => {
         if (item.objectId === k) {
           item.subSpecs = item.subSpecs.filter(item => item.objectId !== sk)
         }
@@ -221,7 +220,7 @@ const CollectionCreateForm = Form.create()(
       })
 
       form.setFieldsValue({
-        specs: nextSpecs
+        spec: nextSpecs
       })
     }
 
@@ -229,13 +228,13 @@ const CollectionCreateForm = Form.create()(
       const { form } = this.props
       const { getFieldValue } = form
 
-      let specs = getFieldValue(`specs`)
-      const thisSpecs = _getSpecs(specs, k)
+      let spec = getFieldValue(`spec`) as Array<Spec>
+      const thisSpec = _getSpec(spec, k)
 
-      if (!thisSpecs.subSpecs) {
+      if (!thisSpec.subSpecs) {
         return null
       }
-      const subKeys = thisSpecs.subSpecs
+      const subKeys = thisSpec.subSpecs
       const subFormItems = subKeys.map(sk => (
         <Row gutter={8} key={`${k}${sk.objectId}`}>
           <Col span={8}>
@@ -245,6 +244,7 @@ const CollectionCreateForm = Form.create()(
                 this.handleValueChanged('name', e.target.value, k, sk.objectId)
               }}
               onBlur={this.handleBlurChanged}
+              value={sk.name}
             />
           </Col>
           <Col span={8}>
@@ -255,6 +255,7 @@ const CollectionCreateForm = Form.create()(
                 this.handleValueChanged('price', e, k, sk.objectId)
               }}
               onBlur={this.handleBlurChanged}
+              value={sk.price}
             />
           </Col>
           <Col span={8}>
@@ -269,6 +270,7 @@ const CollectionCreateForm = Form.create()(
                   sk.objectId
                 )
               }}
+              checked={sk.type === SPEC_TYPE_BASE}
             />
             <Icon
               style={{ marginLeft: '8px' }}
@@ -290,8 +292,8 @@ const CollectionCreateForm = Form.create()(
     ) => {
       const { form } = this.props
       const { getFieldValue } = form
-      const specs = getFieldValue('specs') as Array<Spec>
-      const nextSpecs = specs.map(item => {
+      const spec = getFieldValue('spec') as Array<Spec>
+      const nextSpec = spec.map(item => {
         if (item.objectId === id) {
           if (!subID) {
             // 更新父规格
@@ -310,7 +312,7 @@ const CollectionCreateForm = Form.create()(
       })
 
       form.setFieldsValue({
-        specs: nextSpecs
+        spec: nextSpec
       })
     }
 
@@ -318,10 +320,10 @@ const CollectionCreateForm = Form.create()(
       const { form } = this.props
       const { getFieldValue } = form
 
-      const specs = getFieldValue('specs') as Array<Spec>
+      const spec = getFieldValue('spec') as Array<Spec>
 
       let passed = true
-      specs.map(item => {
+      spec.map(item => {
         if (item.subSpecs) {
           item.subSpecs.map(subItem => {
             if (!subItem.name || isNaN(subItem.price)) {
@@ -348,10 +350,10 @@ const CollectionCreateForm = Form.create()(
       const { categoryList, visible, onCancel, onOK, form } = this.props
       const { getFieldDecorator, getFieldValue } = form
 
-      getFieldDecorator('specs', { initialValue: [] })
-      const specs = getFieldValue('specs') as Array<Spec>
+      getFieldDecorator('spec', { initialValue: [] })
+      const spec = getFieldValue('spec') as Array<Spec>
 
-      const formItems = specs.map(k => {
+      const formItems = spec.map(k => {
         const subFormItem = this.getSubSpec(k.objectId)
         return (
           <FormItem
@@ -369,6 +371,7 @@ const CollectionCreateForm = Form.create()(
                     this.handleValueChanged('name', e.target.value, k.objectId)
                   }}
                   onBlur={this.handleBlurChanged}
+                  value={k.name}
                 />
               </Col>
               <Col span={12}>
@@ -397,13 +400,14 @@ const CollectionCreateForm = Form.create()(
           onCancel={onCancel}
           onOk={() => {
             if (this.handleBlurChanged()) {
-              onOK()
+              let category = this._rebuildFormValues()
+              onOK(category)
             }
           }}
         >
           <Form>
             <FormItem label="商品图片">
-              {getFieldDecorator('imageList', {
+              {getFieldDecorator('images', {
                 initialValue: [],
                 rules: [
                   {
@@ -414,7 +418,7 @@ const CollectionCreateForm = Form.create()(
               })(<PicturesWall />)}
             </FormItem>
             <FormItem label="商品名称">
-              {getFieldDecorator('name', {
+              {getFieldDecorator('title', {
                 rules: [
                   {
                     required: true,
@@ -452,7 +456,7 @@ const CollectionCreateForm = Form.create()(
             </FormItem>
 
             <FormItem label="商品描述">
-              {getFieldDecorator('des', {
+              {getFieldDecorator('desc', {
                 rules: [
                   {
                     required: true,
@@ -463,7 +467,7 @@ const CollectionCreateForm = Form.create()(
             </FormItem>
 
             <FormItem label="商品分类">
-              {getFieldDecorator('type', {
+              {getFieldDecorator('category', {
                 rules: [{ required: true, message: '选商品分类啊' }]
               })(
                 <Select placeholder="商品分类">
@@ -480,7 +484,7 @@ const CollectionCreateForm = Form.create()(
               )}
             </FormItem>
             <FormItem label="立即上架">
-              {getFieldDecorator('now', {
+              {getFieldDecorator('display', {
                 initialValue: true
               })(<Switch defaultChecked />)}
             </FormItem>
@@ -488,10 +492,21 @@ const CollectionCreateForm = Form.create()(
         </Modal>
       )
     }
+
+    private _rebuildFormValues = (): Category => {
+      const { categoryList, form } = this.props
+      const { getFieldValue } = form
+      let cid = getFieldValue('category')
+      let result = categoryList.filter(item => cid === item.objectId)
+      if (result.length > 0) {
+        return result[0]
+      }
+      return null
+    }
   }
 )
 
-function _getSpecs(array: Array<Spec>, id: string): Spec {
+function _getSpec(array: Array<Spec>, id: string): Spec {
   let result = array.filter(item => item.objectId === id)
   return result.length > 0 ? result[0] : null
 }

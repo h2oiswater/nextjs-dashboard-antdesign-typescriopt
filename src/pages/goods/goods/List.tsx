@@ -12,7 +12,11 @@ import GoodsForm from './c/GoodsForm'
 import Goods from '../../../class/Goods'
 import { GoodsState } from '../../../model/goods'
 import { MODEL_API } from '../../../model/api'
-import { API_CLASS_NAME } from '../../../constants/className'
+import { API_CLASS_NAME, DB_GOODS } from '../../../constants/className'
+import Category from '../../../class/Category'
+import Query from '../../../class/Query'
+
+import './List.style.less'
 
 const showButtons = [
   {
@@ -35,7 +39,7 @@ const showButtons = [
 
 type GoodsListProps = {
   dispatch: any
-  goods: GoodsState,
+  goods: GoodsState
   api: MODEL_API
 }
 
@@ -52,7 +56,7 @@ const initialState = {
 }
 type State = Readonly<typeof initialState>
 
-@WithDva(({ api, }: { api: MODEL_API }) => {
+@WithDva(({ api }: { api: MODEL_API }) => {
   return { api }
 })
 export default class GoodsList extends React.Component<
@@ -75,15 +79,29 @@ export default class GoodsList extends React.Component<
         className: API_CLASS_NAME.CATEGORY
       }
     })
+
+    dispatch({
+      type: 'api/getList',
+      payload: {
+        className: API_CLASS_NAME.GOODS,
+        query: {
+          include: DB_GOODS.CATEGORY
+        } as Query
+      }
+    })
   }
 
   render() {
     let categoryList = this.props.api[API_CLASS_NAME.CATEGORY + 'List']
+    let goodsList: Array<Goods> = this.props.api[API_CLASS_NAME.GOODS + 'List']
+    let categoryCount = this.props.api[API_CLASS_NAME.GOODS + 'Count']
+
+    goodsList = goodsList ? goodsList : []
     categoryList = categoryList ? categoryList : []
 
     return (
       <Dashboard>
-        <div>
+        <div className="content-area">
           <ToolBar
             showButtons={showButtons}
             onButtonClicked={id => {
@@ -105,9 +123,31 @@ export default class GoodsList extends React.Component<
               })
             }}
           >
-            <Item isSelected={false} />
+            {goodsList.map(item => (
+              <Item
+                key={item.objectId}
+                data={item}
+                onEditClick={this.handleEdit}
+              />
+            ))}
           </DragSelectContainer>
-          <Pagination defaultCurrent={1} total={50} />
+          <Pagination
+            className="page-area"
+            defaultCurrent={1}
+            total={categoryCount}
+            onChange={page => {
+              const { dispatch } = this.props
+              let current = page
+
+              dispatch({
+                type: 'api/getList',
+                payload: {
+                  className: API_CLASS_NAME.GOODS,
+                  params: current
+                }
+              })
+            }}
+          />
           <GoodsForm
             wrappedComponentRef={this.saveFormRef}
             visible={this.state.isEditDialogShow}
@@ -120,9 +160,40 @@ export default class GoodsList extends React.Component<
     )
   }
 
-  private handleDialogOnCancel = () => this.setState(showEditDialog(false))
+  private handleDialogOnCancel = () => {
+    this.setState(showEditDialog(false))
+    const form = this.formRef.props.form
+    form.resetFields()
+  }
 
-  private handleCreate = () => {
+  private handleEdit = (goods: Goods) => {
+    const form = this.formRef.props.form
+    const { setFieldsValue } = form
+
+    const images = goods.images.map(item => ({
+      name: item.name,
+      objectId: item.objectId,
+      uid: item.objectId,
+      url: item.url,
+      status: 'done'
+    }))
+
+    const { title, desc, price, spec, display } = goods
+
+    setFieldsValue({
+      title,
+      desc,
+      price,
+      spec,
+      display,
+      category: goods.category.objectId,
+      images
+    })
+
+    this.setState(showEditDialog(true))
+  }
+
+  private handleCreate = (category: Category) => {
     const form = this.formRef.props.form
     form.validateFields((err, values) => {
       console.log('Received values of form: ', values)
@@ -133,20 +204,27 @@ export default class GoodsList extends React.Component<
 
       const { dispatch } = this.props
 
-      let good: Goods = {
-        title: values.name,
-        desc: values.des,
-        cid: values.type,
-        spec: values.specs,
-        display: values.now,
-        images: values.imageList,
-        price: values.price
+      let goods: Goods = {
+        ...values
+      }
+
+      let params = {
+        ...goods,
+        category: {
+          __type: 'Pointer',
+          className: 'Category',
+          objectId: category.objectId
+        },
+        mainImage: {
+          id: values.images[0].objectId,
+          __type: 'File'
+        }
       }
 
       dispatch({
         type: 'api/create',
         payload: {
-          params: good,
+          params: params,
           className: API_CLASS_NAME.GOODS
         }
       })

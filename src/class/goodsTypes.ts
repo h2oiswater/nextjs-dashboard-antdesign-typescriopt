@@ -25,3 +25,12 @@ export type GoodsListRep = {
   result: Array<Goods>
   count: number
 }
+
+// leancloud
+export type AVFile = {
+  objectId?: string
+  createdAt?: string
+  name?: string
+  url?: string
+  bucket?: string
+}

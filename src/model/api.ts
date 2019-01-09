@@ -30,7 +30,9 @@ const model = {
   },
   effects: {
     *getList(
-      { payload }: { payload: { className: string; params: any } },
+      {
+        payload
+      }: { payload: { className: string; params: any; query?: Query } },
       { select, call, put }
     ) {
       let page = yield select(
@@ -50,14 +52,28 @@ const model = {
       }
 
       let pageSize = yield select(state => state[MODEL_NAME].perPageSize)
-      let query: Query =
-        page !== -1
-          ? {
-              limit: pageSize,
-              skip: (page - 1) * pageSize
-            }
-          : {}
-      let result = yield call(restfulAPI.rstGet, query, payload.className)
+
+      let pQuery: Query
+      if (payload.query) {
+        pQuery =
+          page !== -1
+            ? {
+                ...payload.query,
+                limit: pageSize,
+                skip: (page - 1) * pageSize
+              }
+            : { ...payload.query }
+      } else {
+        pQuery =
+          page !== -1
+            ? {
+                limit: pageSize,
+                skip: (page - 1) * pageSize
+              }
+            : {}
+      }
+
+      let result = yield call(restfulAPI.rstGet, pQuery, payload.className)
 
       yield put({
         type: 'updateList',
@@ -86,7 +102,10 @@ const model = {
       })
       yield put({ type: 'getList', payload: { className: payload.className } })
     },
-    *delete({ payload }: { payload: { className: string; params: any } }, { call, put }) {
+    *delete(
+      { payload }: { payload: { className: string; params: any } },
+      { call, put }
+    ) {
       yield call(restfulAPI.rstDelete, payload.params, payload.className)
 
       yield put({ type: 'getList', payload: { className: payload.className } })
