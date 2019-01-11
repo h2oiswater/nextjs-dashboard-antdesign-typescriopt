@@ -39,22 +39,23 @@ type PicturesWallProps = {
 // 提供 onChange 事件或 trigger 的值同名的事件。
 // 不能是函数式组件。
 class PicturesWall extends React.Component<PicturesWallProps, any> {
-  private uploadedImgs = {}
-
-  static getDerivedStateFromProps(nextProps, prevState) {
-    if (nextProps.value && nextProps.value.length > 0) {
+  static getDerivedStateFromProps(nextProps) {
+    // Should be a controlled component.
+    if ('value' in nextProps) {
       return {
         fileList: nextProps.value
       }
     }
-
     return null
   }
 
   constructor(props) {
     super(props)
+
+    const value = props.value || []
+
     this.state = {
-      fileList: [],
+      fileList: value,
       previewVisible: false,
       previewImage: ''
     }
@@ -72,20 +73,20 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
   handleChange = ({ fileList }) => {
     console.log(fileList)
     this.setState({ fileList })
-
-    // // Should provide an event to pass value to Form.
-    // const onChange = this.props.onChange
-    // if (onChange) {
-    //   let imgs = fileList.filter(item => {
-    //       return this.uploadedImgs[item.uid]
-    //   })
-
-    //   imgs = imgs.map(item => {
-    //     return this.uploadedImgs[item.uid]
-    //   })
-
-    //   onChange(imgs)
-    // }
+    this.props.onChange(
+      fileList.map(item => {
+        if (item.originFileObj && item.originFileObj.response) {
+          return {
+            name: item.originFileObj.response.data.name,
+            objectId: item.originFileObj.response.data.objectId,
+            uid: item.originFileObj.response.data.objectId,
+            url: item.originFileObj.response.data.url,
+            status: 'done'
+          }
+        }
+        return item
+      })
+    )
   }
 
   render() {
@@ -102,7 +103,7 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
           listType="picture-card"
           fileList={fileList}
           onPreview={this.handlePreview}
-          onChange={this.handleChange}
+          supportServerRender
           customRequest={({ file, onSuccess, onError }) => {
             let formData = new FormData()
             formData.append('file', file)
@@ -114,11 +115,12 @@ class PicturesWall extends React.Component<PicturesWallProps, any> {
                 }
               })
               .then(data => {
-                this.uploadedImgs[file.uid] = data.data
+                file.response = data
                 onSuccess(null, file)
               })
               .catch(() => onError())
           }}
+          onChange={this.handleChange}
         >
           {fileList.length >= 3 ? null : uploadButton}
         </Upload>
@@ -140,10 +142,6 @@ interface GoodsFormProps extends FormComponentProps {
   onCancel(): void
   onOK(category: Category): void
 }
-
-// 给动态组件用
-let id = 0
-let subID = 0
 
 const VALIDATE_MSG = '规格中存在空的名称、价格或者存在没有子规格，请检查'
 const initialState = {
@@ -169,12 +167,43 @@ const CollectionCreateForm = Form.create()(
       const { form } = this.props
       form.getFieldDecorator(`spec`, { initialValue: [] })
       const spec = form.getFieldValue('spec') as Array<Spec>
+      let id = 0
+      while (this.getID(id.toString(), true)) {
+        id++
+      }
       spec.push({
-        objectId: (id++).toString()
+        objectId: id.toString()
       })
       form.setFieldsValue({
         spec
       })
+    }
+
+    getID = (id: string, isMain: boolean): boolean => {
+      const { form } = this.props
+
+      form.getFieldDecorator(`spec`, { initialValue: [] })
+      const spec = form.getFieldValue('spec') as Array<Spec>
+
+      let hasExisted = false
+      spec.map(item => {
+        if (isMain) {
+          // 检查父规格
+          if (item.objectId === id) {
+            hasExisted = true
+          }
+        } else {
+          // 检查子规格
+          if (item.subSpecs) {
+            item.subSpecs.map(subItem => {
+              if (subItem.objectId === id) {
+                hasExisted = true
+              }
+            })
+          }
+        }
+      })
+      return hasExisted
     }
 
     addSubSpec = (k: string) => {
@@ -183,8 +212,13 @@ const CollectionCreateForm = Form.create()(
       const thisSpec = _getSpec(spec, k)
       const subSpecs = thisSpec.subSpecs ? thisSpec.subSpecs : []
 
+      let subID = 0
+      while (this.getID(subID.toString(), false)) {
+        subID++
+      }
+
       subSpecs.push({
-        objectId: (subID++).toString(),
+        objectId: subID.toString(),
         type: SPEC_TYPE_MODIFY
       })
 
@@ -324,7 +358,7 @@ const CollectionCreateForm = Form.create()(
 
       let passed = true
       spec.map(item => {
-        if (item.subSpecs) {
+        if (item.subSpecs && item.subSpecs.length > 0) {
           item.subSpecs.map(subItem => {
             if (!subItem.name || isNaN(subItem.price)) {
               passed = false

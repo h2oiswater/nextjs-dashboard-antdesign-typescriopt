@@ -24,7 +24,6 @@ const model = {
     updateCurrent(state, { payload }) {
       let result = { ...state }
       result[payload.className + 'Current'] = payload.params
-      console.log(payload)
       return result
     }
   },

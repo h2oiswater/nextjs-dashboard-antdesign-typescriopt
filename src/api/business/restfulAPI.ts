@@ -14,8 +14,7 @@ export function rstPut(data: any, className: string): Promise<any> {
 
 export function rstDelete(data: any, className: string): Promise<any> {
   return apiDelete({
-    url: `/classes/${className}/${data.objectId}`,
-    params: data
+    url: `/classes/${className}/${data.objectId}`
   })
 }
 

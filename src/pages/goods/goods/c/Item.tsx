@@ -1,5 +1,5 @@
 import React, { Component } from 'react'
-import { Card, Icon } from 'antd'
+import { Card, Icon, Popconfirm } from 'antd'
 const { Meta } = Card
 
 import './Item.style.less'
@@ -10,6 +10,7 @@ interface ItemProps {
   isSelected?: boolean
   data: Goods
   onEditClick(goods: Goods): void
+  onDeleteClick(goods: Goods): void
 }
 
 const DEFAULT_IMG_URL =
@@ -21,28 +22,32 @@ export default class Item extends Component<ItemProps, any> {
     const { spec, price } = goods
 
     if (spec.length > 0) {
-      let minPrice = -1
+      let minPrice = undefined
       spec.map(item => {
         item.subSpecs.map(subItem => {
           if (
             subItem.type === SPEC_TYPE_BASE &&
-            (minPrice === -1 || subItem.price < minPrice)
+            (!minPrice || (isNaN(minPrice) && subItem.price < minPrice))
           ) {
             minPrice = subItem.price
           }
         })
       })
-      let minFixPrice = 0
+      let minFixPrice = undefined
       spec.map(item => {
         item.subSpecs.map(subItem => {
           if (
             subItem.type === SPEC_TYPE_MODIFY &&
-            (minFixPrice === 0 || subItem.price < minFixPrice)
+            (!minFixPrice ||
+              (isNaN(minFixPrice) && subItem.price < minFixPrice))
           ) {
             minFixPrice = subItem.price
           }
         })
       })
+
+      if (!minPrice) minPrice = 0
+      if (!minFixPrice) minFixPrice = 0
       return `${minPrice + minFixPrice}元起`
     } else {
       return `${price}元`
@@ -50,7 +55,7 @@ export default class Item extends Component<ItemProps, any> {
   }
 
   render() {
-    const { onEditClick } = this.props
+    const { onEditClick, onDeleteClick } = this.props
     const goods = this.props.data
 
     return (
@@ -68,7 +73,14 @@ export default class Item extends Component<ItemProps, any> {
           actions={[
             <Icon type="setting" />,
             <Icon type="edit" onClick={() => onEditClick(goods)} />,
-            <Icon type="ellipsis" />
+            <Popconfirm
+              title="您确定要删除该商品吗？"
+              onConfirm={()=>{onDeleteClick(goods)}}
+              okText="确定"
+              cancelText="取消"
+            >
+              <Icon type="delete"/>
+            </Popconfirm>
           ]}
         >
           <Meta title={goods.title} />

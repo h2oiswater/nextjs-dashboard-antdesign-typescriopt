@@ -1,5 +1,6 @@
 import React from 'react'
 import { Form, Pagination } from 'antd'
+import _ from 'lodash';
 // @ts-ignore
 import Dashboard from '@layouts/Dashboard'
 // @ts-ignore
@@ -128,6 +129,7 @@ export default class GoodsList extends React.Component<
                 key={item.objectId}
                 data={item}
                 onEditClick={this.handleEdit}
+                onDeleteClick={this.handleDelete}
               />
             ))}
           </DragSelectContainer>
@@ -161,16 +163,29 @@ export default class GoodsList extends React.Component<
   }
 
   private handleDialogOnCancel = () => {
+    const { dispatch } = this.props
+
+    // 关闭弹窗
     this.setState(showEditDialog(false))
+
+    // 重置表单
     const form = this.formRef.props.form
     form.resetFields()
+
+    // 重置state对象
+    dispatch({
+      type: 'api/updateCurrent',
+      payload: { params: {}, className: API_CLASS_NAME.GOODS }
+    })
   }
 
   private handleEdit = (goods: Goods) => {
+    const newGoods = _.cloneDeep(goods)
     const form = this.formRef.props.form
     const { setFieldsValue } = form
+    const { dispatch } = this.props
 
-    const images = goods.images.map(item => ({
+    const images = newGoods.images.map(item => ({
       name: item.name,
       objectId: item.objectId,
       uid: item.objectId,
@@ -178,7 +193,7 @@ export default class GoodsList extends React.Component<
       status: 'done'
     }))
 
-    const { title, desc, price, spec, display } = goods
+    const { title, desc, price, spec, display } = newGoods
 
     setFieldsValue({
       title,
@@ -191,6 +206,19 @@ export default class GoodsList extends React.Component<
     })
 
     this.setState(showEditDialog(true))
+
+    dispatch({
+      type: 'api/updateCurrent',
+      payload: { params: goods, className: API_CLASS_NAME.GOODS }
+    })
+  }
+
+  private handleDelete = (goods: Goods) => {
+    const { dispatch } = this.props
+    dispatch({
+      type: 'api/delete',
+      payload: { params: goods, className: API_CLASS_NAME.GOODS }
+    })
   }
 
   private handleCreate = (category: Category) => {
