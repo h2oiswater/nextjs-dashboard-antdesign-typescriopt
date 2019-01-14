@@ -10,6 +10,7 @@
   "dependencies": {
     "antd": "^3.11.6",
     "axios": "^0.18.0",
+    "braft-editor": "^2.2.5",
     "dva-no-router": "^1.2.0",
     "koa": "^2.5.3",
     "koa-bodyparser": "^4.2.1",

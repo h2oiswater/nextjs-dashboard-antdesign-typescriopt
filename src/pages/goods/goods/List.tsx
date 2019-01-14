@@ -1,12 +1,13 @@
 import React from 'react'
 import { Form, Pagination } from 'antd'
-import _ from 'lodash';
+import _ from 'lodash'
 // @ts-ignore
 import Dashboard from '@layouts/Dashboard'
 // @ts-ignore
 import WithDva from 'dva-utils/store'
 import DragSelectContainer from './c/DragSelectContainer'
-import ToolBar from './c/ToolBar'
+// @ts-ignore
+import ToolBar from '@components/toolbar/ToolBar'
 import Item from './c/Item'
 import GoodsForm from './c/GoodsForm'
 

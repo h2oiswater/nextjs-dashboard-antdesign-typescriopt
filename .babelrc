@@ -8,7 +8,9 @@
       "root": ["./src"],
       "alias": {
         "@layouts": "./src/layouts/",
+        "@components": "./src/components/",
         "@styles": "./src/styles/",
+        "src": "./src/",
         "dva-utils": "./src/utils/",
         "dva": "dva-no-router"
       }

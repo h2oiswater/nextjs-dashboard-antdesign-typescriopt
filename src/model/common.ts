@@ -1,15 +1,15 @@
+const initialState = {
+  currentStoreID: undefined as string
+}
+
+export type CommonState = typeof initialState
+
 const model = {
   namespace: 'common',
-  state: {
-    loading: false,
-    msg: 'hello'
-  },
+  state: initialState,
   reducers: {
-    updateLoading(state, loading) {
-      return { ...state, loading }
-    },
-    updateMsg(state, payload) {
-      return { ...state, msg: payload.msg }
+    updateCurrentStoreID(state, { payload }): CommonState {
+      return { ...state, currentStoreID: payload }
     }
   },
   effects: {}

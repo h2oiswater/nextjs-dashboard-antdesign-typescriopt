@@ -5,6 +5,8 @@ import WithDva from 'dva-utils/store'
 
 const SubMenu = Menu.SubMenu
 
+let id = 0
+
 @WithDva(({ router }) => {
   return { router }
 })
@@ -15,10 +17,22 @@ export default class Sider extends React.Component {
       case '1':
         dispatch({
           type: 'router/updatePath',
-          path: '/goods/category/List'
+          path: '/store/store/Info'
         })
         break
       case '2':
+        dispatch({
+          type: 'router/updatePath',
+          path: '/store/notification/List'
+        })
+        break
+      case '3':
+        dispatch({
+          type: 'router/updatePath',
+          path: '/goods/category/List'
+        })
+        break
+      case '4':
         dispatch({
           type: 'router/updatePath',
           path: '/goods/goods/List'
@@ -45,16 +59,28 @@ export default class Sider extends React.Component {
           key="sub1"
           title={
             <span>
+              <Icon type="shop" />
+              <span>店铺管理</span>
+            </span>
+          }
+        >
+          <Menu.Item key="1">店铺信息</Menu.Item>
+          <Menu.Item key="2">公告管理</Menu.Item>
+        </SubMenu>
+        <SubMenu
+          key="sub2"
+          title={
+            <span>
               <Icon type="mail" />
               <span>商品管理</span>
             </span>
           }
         >
-          <Menu.Item key="1">分类管理</Menu.Item>
-          <Menu.Item key="2">商品管理</Menu.Item>
+          <Menu.Item key="3">分类管理</Menu.Item>
+          <Menu.Item key="4">商品管理</Menu.Item>
         </SubMenu>
         <SubMenu
-          key="sub2"
+          key="sub3"
           title={
             <span>
               <Icon type="appstore" />
@@ -62,10 +88,10 @@ export default class Sider extends React.Component {
             </span>
           }
         >
-          <Menu.Item key="3">订单列表</Menu.Item>
+          <Menu.Item key="5">订单列表</Menu.Item>
         </SubMenu>
         <SubMenu
-          key="sub3"
+          key="sub4"
           title={
             <span>
               <Icon type="setting" />
@@ -73,7 +99,7 @@ export default class Sider extends React.Component {
             </span>
           }
         >
-          <Menu.Item key="4">骑手管理</Menu.Item>
+          <Menu.Item key="5">骑手管理</Menu.Item>
         </SubMenu>
       </Menu>
     )

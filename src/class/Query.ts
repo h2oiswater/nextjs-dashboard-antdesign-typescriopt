@@ -9,9 +9,9 @@
 //   count?: number
 // }
 
-type CategoryType = {
+export default interface Query {
   class?: string
-  where?: string
+  where?: any
   limit?: number
   skip?: number
   order?: string
@@ -19,7 +19,3 @@ type CategoryType = {
   keys?: string
   count?: number
 }
-
-type Category = Partial<CategoryType>
-
-export default Category

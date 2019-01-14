@@ -25,7 +25,7 @@ const model = {
       let result = { ...state }
       result[payload.className + 'Current'] = payload.params
       return result
-    }
+    },
   },
   effects: {
     *getList(

@@ -38,7 +38,7 @@ type PicturesWallProps = {
 // 提供受控属性 value 或其它与 valuePropName 的值同名的属性。
 // 提供 onChange 事件或 trigger 的值同名的事件。
 // 不能是函数式组件。
-class PicturesWall extends React.Component<PicturesWallProps, any> {
+export class PicturesWall extends React.Component<PicturesWallProps, any> {
   static getDerivedStateFromProps(nextProps) {
     // Should be a controlled component.
     if ('value' in nextProps) {
