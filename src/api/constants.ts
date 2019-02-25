@@ -1,6 +1,6 @@
-export const LEAN_API_ID = 'DpnvHL3ttpjzk5UvHnSEedNo-gzGzoHsz'
+export const LEAN_API_ID = ''
 
-export const LEAN_API_KEY = 'vGLWcKIk9nh1udRwF44o1AsS'
+export const LEAN_API_KEY = ''
 
 export function getUploadUrl(name: string) {
   return `https://${LEAN_API_ID.substring(
